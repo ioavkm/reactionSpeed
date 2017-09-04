@@ -1,0 +1,153 @@
+/** Classe encarregada de trocar informações entre o programa central e os dispositivos.
+ * Isto é realizado por meio de comunicação por portas seriais via rede Bluetooth.
+ */
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import gnu.io.CommPortIdentifier;
+import gnu.io.PortInUseException;
+import gnu.io.SerialPort;
+import gnu.io.SerialPortEvent; 
+import gnu.io.SerialPortEventListener;
+import gnu.io.UnsupportedCommOperationException;
+
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.TooManyListenersException;
+
+public class CommunicateArduino {
+	
+        /** The port we're normally going to use. */
+	private static final String PORT_NAMES[] = { 
+			//"/dev/tty.wchusbserial1420", // Mac OS X
+			//"/dev/tty.Bluetooth-Incoming-Port",
+			"/dev/tty.HC-05-DevB",
+            //            "/dev/ttyACM0", // Raspberry Pi
+			//"/dev/ttyUSB0", // Linux
+			//"COM3", // Windows
+	};
+	public static InputStream input;
+	public static OutputStream output;
+	private static final int TIME_OUT = 2000;
+	private static final int DATA_RATE = 9600;
+	public static ArrayList<Byte> bytesRead = new ArrayList<Byte>();
+	// Contem os serialPort
+	ArrayList<SerialPort> ports = new ArrayList<SerialPort>();
+
+	// acha e inicia a conexão com as portas seriais (dispositivos)
+	public void initialize() {
+
+		Enumeration<?> portEnum = CommPortIdentifier.getPortIdentifiers();
+
+		// acha uma instância de porta serial
+		while (portEnum.hasMoreElements()) {
+			CommPortIdentifier currPortId = (CommPortIdentifier) portEnum.nextElement();
+			String currPortName = currPortId.getName();
+
+			if (currPortId.getPortType() == CommPortIdentifier.PORT_SERIAL && //se for porta serial
+					currPortName.contains("/dev/tty.HC-05")) { //se o nome ainda nao existir
+				
+				SerialPort serialPort;
+				try {
+					serialPort = (SerialPort) currPortId.open(this.getClass().getName(), TIME_OUT);
+
+					serialPort.setSerialPortParams(DATA_RATE,
+							SerialPort.DATABITS_8,
+							SerialPort.STOPBITS_1,
+							SerialPort.PARITY_NONE);
+					
+					serialPort.notifyOnDataAvailable(true);
+					
+					serialPort.addEventListener(new SinglePort(currPortName, serialPort));
+					
+					ports.add(serialPort);
+			    } catch (Exception e) {
+			    	System.err.println(e.toString() + " in port: " + currPortName);
+			    	continue;
+			    }
+			}
+		}
+	}
+
+	// fecha as portas abertas
+	public synchronized void close() {
+		for (SerialPort sp: ports) {
+			if (sp != null) {
+				sp.removeEventListener();
+				sp.close();
+			}
+		}
+	}
+	
+	// adiciona os dados recebidos do dispositivo
+	public void addData(byte data) {
+		bytesRead.add(data);
+	}
+	
+	// verifica se há dados disponíveis
+	public boolean dataAvailable() {
+		if (bytesRead.size() >= 5) {
+			return true;
+		}
+		return false;
+	}
+	
+	// retorna os valores guardados
+	public InputData getInputValue() {
+		if (dataAvailable()) {
+			
+			int inputDeviceNum = bytesRead.get(0);
+			
+			long inputTime = bytesRead.get(1) & 0xFF;
+			inputTime |= (bytesRead.get(2) << 8) & 0xFFFF;
+			inputTime |= (bytesRead.get(3) << 16) & 0xFFFFFF;
+			inputTime |= (bytesRead.get(4) << 24) & 0xFFFFFFFF;
+			
+			bytesRead.remove(4);
+			bytesRead.remove(3);
+			bytesRead.remove(2);
+			bytesRead.remove(1);
+			bytesRead.remove(0);
+			
+			return new InputData(inputDeviceNum, inputTime);
+		}
+		return new InputData(7, 0);
+	}
+	
+	// limpa a lista
+	public void clearInputData() {
+		bytesRead.clear();
+	}
+	
+	// envia um comando ao dispositivo
+	public static synchronized void writeData(int data) {
+		try {
+			output.write(data);
+			output.flush();
+		} catch (Exception e) {
+			System.out.println("Could not write to port.");
+		}
+	}
+	
+	// retorna a porta serial
+	public OutputStream getOutput(int i) {
+		try {
+			return ports.get(i).getOutputStream();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	// retorna o numero de dispositivos conectados
+	public int numConnections() {
+		return ports.size();
+	}
+	
+	// retorna o número de informações recebidas dos dispositivos
+	public int numInputsRead() {
+		return bytesRead.size() / 5;
+	}
+
+}
