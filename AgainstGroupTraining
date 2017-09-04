@@ -1,0 +1,83 @@
+/** Classe filha da classe Training, estendendo-a. Ela contém as funcionalidades necessárias para a realização do treinamento “grupo".*/
+
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Random;
+
+public class AgainstGroupTraining extends Training{
+	
+	public static OutputStream output;
+	
+	Random randomGenerator = new Random();
+	int groupSize;
+	boolean randomGroupSize; //variavel para dizer se o groupSize eh gerado dinamicamente e aleatoriamente ou não
+	
+	// construtor
+	public AgainstGroupTraining(CommunicateArduino ca) {
+		super(ca);
+	}
+	
+	// define o tamanho do grupo
+	public void setGroupSize() {
+		randomGroupSize = true;
+		groupSize = randomGenerator.nextInt(numConnections) + 1;
+	}
+	
+	// define o tamanho do grupo
+	public void setGroupSize(int groupSize) {
+		randomGroupSize = false;
+		
+		if (groupSize > numConnections) { //se o tamanho do grupo for maior que o numero de dispositivos conectados
+			this.groupSize = numConnections;
+		} else {
+			this.groupSize = groupSize;
+		}
+	}
+	
+	// preenche ledsNum sem repetir numeros
+	public int[] generateLedsNum() {
+		
+		if (randomGroupSize) {
+			groupSize = randomGenerator.nextInt(numConnections) + 1;
+		}
+		
+		int[] ledsNum = randomGenerator.ints(0, numConnections).distinct().limit(groupSize).toArray();
+		
+		return ledsNum;
+	}
+	
+	// liga os leds
+	public void turnLedsOn(int[] ledsNum, CommunicateArduino ca) {
+		
+		for (int ledNum: ledsNum) {
+			output = ca.getOutput(ledNum);
+			writeData(TURN_ON);
+		}
+	}
+	
+	// adiciona o tempo à lista correspondente
+	public void addTime(CommunicateArduino ca, BasicInfo basicInfo) {
+		long maxTime = 0;
+		int deviceNum = 1;
+		while (ca.dataAvailable()) {
+			InputData inputData = ca.getInputValue();
+			if (maxTime < inputData.time) {
+				maxTime = inputData.time;
+				deviceNum = inputData.deviceNum;
+			}
+		}
+		if (maxTime > 0) {
+			addTimes(new InputData(deviceNum, maxTime), basicInfo);
+		}
+	}
+	
+	// envia um comando ao dispositivo
+	public static synchronized void writeData(int data) {
+		try {
+			output.write(data);
+			output.flush();
+		} catch (Exception e) {
+			System.out.println("Could not write to port.");
+		}
+	}
+}
