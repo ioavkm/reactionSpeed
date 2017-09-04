@@ -1,0 +1,13 @@
+/** Classe usada como uma estrutura que contém 2 variáveis: uma que concerne ao tempo retornado por um dispositivo e outra referente ao número deste dispositivo.*/
+
+public class InputData {
+
+	int deviceNum;
+	long time;
+	
+	// construtor
+	public InputData(int deviceNum, long time) {
+		this.deviceNum = deviceNum;
+		this.time = time;
+	}
+}
