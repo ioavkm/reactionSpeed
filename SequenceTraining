@@ -1,0 +1,78 @@
+/** Classe filha da classe Training, estendendo-a. Ela contém as funcionalidades necessárias para a realização do treinamento “sequencial”.*/
+
+import java.io.OutputStream;
+import java.util.ArrayList;
+
+public class SequenceTraining extends Training{
+
+	public static OutputStream output;
+	int ledNum;
+	boolean reset = false;
+
+	// construtor
+	public SequenceTraining(CommunicateArduino ca) {
+		super(ca);
+		ledNum = 0;
+	}
+	
+	// liga o led
+	public void turnLedOn(CommunicateArduino ca) {
+		output = ca.getOutput(ledNum);
+		writeData(TURN_ON);
+	}
+	
+	// desliga o led
+	public void turnLedOff(CommunicateArduino ca) {
+		output = ca.getOutput(ledNum);
+		writeData(TURN_OFF);
+	}
+	
+	// retorna true se o ledNum estiver ligado
+	public boolean isLedOn(CommunicateArduino ca) {
+		if (ledNum == ca.numInputsRead()) {
+			return true;
+		}
+		return false;
+	}
+	
+	// seleciona o próximo dispositivo
+	public void nextLed(CommunicateArduino ca) {
+		ledNum++;
+		if (ledNum >= numConnections) {
+			ledNum = 0;
+			reset = true;
+		}
+	}
+	
+	// reinicia o ciclo, voltando ao primeiro dispositivo
+	public void resetLedNum(CommunicateArduino ca) {
+		ca.clearInputData();
+	}
+	
+	// adiciona o tempo à lista correspondente
+	public void addTime(CommunicateArduino ca, BasicInfo basicInfo) {
+		long totalTime = 0;
+		int deviceNum = 1;
+		while (ca.dataAvailable()) {
+			InputData inputData = ca.getInputValue();
+			totalTime += inputData.time;
+			deviceNum = inputData.deviceNum;
+		}
+		if (totalTime > 0) {
+			addTimes(new InputData(deviceNum, totalTime), basicInfo);
+		}
+		
+		ledNum = 0;
+	}
+	
+	// envia um comando ao dispositivo
+	public static synchronized void writeData(int data) {
+		try {
+			output.write(data);
+			output.flush();
+		} catch (Exception e) {
+			System.out.println("Could not write to port.");
+		}
+	}
+	
+}
