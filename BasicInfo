@@ -1,0 +1,608 @@
+/** Classe que contém as informações e funções básicas dos treinamentos e seus respectivos usuários,
+ * fazendo a integração entre os dados que foram, ou serão, salvos e as classes que os utilizarão.
+ */
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.util.ArrayList;
+
+public class BasicInfo {
+	
+	public static final int RANDOM_MODE = 1;
+	public static final int AGAINST_GROUP_MODE = 2;
+	public static final int SEQUENCE_MODE = 3;
+	
+	public static final int UPPER_LIMB = 1;
+	public static final int LOWER_LIMB = 2;
+	
+	public static final int RESTED = 0;
+	public static final int TIRED = 1;
+	
+	public static final int RIGHT_SIDE = 1;
+	public static final int LEFT_SIDE = 2;
+	
+	public static final int BOTH = 0;
+	
+	public static final int LONG_DISTANCE = 0;
+	public static final int SHORT_DISTANCE = 1;
+	
+	public static final int AD = 1;
+	public static final int AE = 2;
+	public static final int BD = 3;
+	public static final int BE = 4;
+	
+	public static final int VISUALIZAR_INFORMACOES = 1;
+	public static final int COMPARAR_DISPOSITIVOS = 2;
+	public static final int COMPARAR_ESTADO_FISICO = 3;
+	public static final int COMPARAR_MEMBROS = 4;
+	public static final int COMPARAR_LADO_DO_CORPO = 5;
+	public static final int COMPARAR_USUARIOS = 6;
+	
+	ArrayList<String> users = new ArrayList<String> ();
+	
+	ArrayList<Long> times = new ArrayList<Long> ();
+	
+	ArrayList<Long> timeUser1 = new ArrayList<Long> ();
+	ArrayList<Long> timeUser2 = new ArrayList<Long> ();
+	ArrayList<Long> timeUser3 = new ArrayList<Long> ();
+	ArrayList<Long> timeUser4 = new ArrayList<Long> ();
+	
+	ArrayList<Long> timeRested = new ArrayList<Long> ();
+	ArrayList<Long> timeTired = new ArrayList<Long> ();
+	
+	ArrayList<Long> timeUpperLimb = new ArrayList<Long> ();
+	ArrayList<Long> timeLowerLimb = new ArrayList<Long> ();
+	
+	ArrayList<Long> timeLeftSide = new ArrayList<Long> ();
+	ArrayList<Long> timeRightSide = new ArrayList<Long> ();
+	
+	ArrayList<Long> timeBoth = new ArrayList<Long> ();
+	
+	ArrayList<Long> timeDeviceAD = new ArrayList<Long> (); //alto direita
+	ArrayList<Long> timeDeviceAE = new ArrayList<Long> (); //alto esquerda
+	ArrayList<Long> timeDeviceBD = new ArrayList<Long> (); //baixo direita
+	ArrayList<Long> timeDeviceBE = new ArrayList<Long> (); //baixo esquerda
+	
+	String currentUser = "";
+	
+	String user1 = "";
+	String user2 = "";
+	String user3 = "";
+	String user4 = "";
+	int trainingMode = RANDOM_MODE;
+	int limb = BOTH;
+	int physicalCondition = RESTED;
+	int side = BOTH;
+	int distance = LONG_DISTANCE;
+	
+	int positionDevice1 = AD;
+	int positionDevice2 = AD;
+	int positionDevice3 = AD;
+	int positionDevice4 = AD;
+	int positionDevice5 = AD;
+	int positionDevice6 = AD;
+	int positionDevice7 = AD;
+	
+	//5 linhas (geral, ad, ae, bd, be) e 3 colunas (timeAvg, timeMin, timeMax)
+	long[][] time = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}; 
+	
+	FileManager fileManager = new FileManager();
+	
+	// carrega os usuários do arquivo
+	public void loadUsers(String fileName) {
+		fileManager.loadUsersFromTxt(fileName, this);
+	}
+	
+	// carrega os tempos do arquivo
+	public void loadTimeHistory(String fileName, int chartType) {
+		clearTimeLists();
+		fileManager.loadTimeHistoryFromTxt(fileName, chartType, this);
+	}
+	
+	// adiciona um usuário
+	public void addUser(String line) {
+		String[] words = line.split("\\s+");
+		if (!users.contains(words[0])) {
+			users.add(words[0]);
+		}
+	}
+	
+	// seleciona o usuário
+	public boolean selectUser(String user) {
+		if (users.contains(user)) {
+			currentUser = user;
+			return true;
+		}
+		return false;
+	}
+	
+	// verifica o usuário
+	public boolean verifyUser(String user) {
+		if (users.contains(user)) {
+			return true;
+		}
+		return false;
+	}
+	
+	// cria novo usuário
+	public boolean createNewUser(String user) {
+				
+		if (!users.contains(user) && !user.contains("\n") && !user.contains(" ")) {
+			users.add(user);
+			currentUser = user;
+			return true;
+		}
+		return false;
+	}
+	
+	// seleciona o treinamento
+	public void setTrainingMode(int trainingMode) {
+		this.trainingMode = trainingMode;
+	}
+	
+	// adiciona os tempos nas listas correspondentes
+	public void addTimeHistory(String line, int chartType) {
+		String[] words = line.split("\\s+");
+		
+		if (chartType == VISUALIZAR_INFORMACOES && checkForInformation(words)) {
+			times.add(Long.parseLong(words[6]));
+			times.add(Long.parseLong(words[7]));
+			times.add(Long.parseLong(words[8]));
+			
+		} else if (chartType == COMPARAR_DISPOSITIVOS)	{
+			int device = checkForDevices(words);
+			if (checkForInformation(words)) {
+				times.add(Long.parseLong(words[6]));
+				times.add(Long.parseLong(words[7]));
+				times.add(Long.parseLong(words[8]));
+			} else if (device == AD) {
+				timeDeviceAD.add(Long.parseLong(words[6]));
+				timeDeviceAD.add(Long.parseLong(words[7]));
+				timeDeviceAD.add(Long.parseLong(words[8]));
+			} else if (device == AE) {
+				timeDeviceAE.add(Long.parseLong(words[6]));
+				timeDeviceAE.add(Long.parseLong(words[7]));
+				timeDeviceAE.add(Long.parseLong(words[8]));
+			} else if (device == BD) {
+				timeDeviceBD.add(Long.parseLong(words[6]));
+				timeDeviceBD.add(Long.parseLong(words[7]));
+				timeDeviceBD.add(Long.parseLong(words[8]));
+			} else if (device == BE) {
+				timeDeviceBE.add(Long.parseLong(words[6]));
+				timeDeviceBE.add(Long.parseLong(words[7]));
+				timeDeviceBE.add(Long.parseLong(words[8]));
+			}
+			
+		} else if (chartType == COMPARAR_ESTADO_FISICO) {
+			int physicalCondition = checkForPhysicalConditions(words);
+			if (physicalCondition == RESTED) {
+				timeRested.add(Long.parseLong(words[6]));
+				timeRested.add(Long.parseLong(words[7]));
+				timeRested.add(Long.parseLong(words[8]));
+			} else if (physicalCondition == TIRED) {
+				timeTired.add(Long.parseLong(words[6]));
+				timeTired.add(Long.parseLong(words[7]));
+				timeTired.add(Long.parseLong(words[8]));
+			}
+			
+		} else if (chartType == COMPARAR_MEMBROS) {
+			int limb = checkForLimbs(words);
+			if (limb == UPPER_LIMB) {
+				timeUpperLimb.add(Long.parseLong(words[6]));
+				timeUpperLimb.add(Long.parseLong(words[7]));
+				timeUpperLimb.add(Long.parseLong(words[8]));
+			} else if (limb == LOWER_LIMB) {
+				timeLowerLimb.add(Long.parseLong(words[6]));
+				timeLowerLimb.add(Long.parseLong(words[7]));
+				timeLowerLimb.add(Long.parseLong(words[8]));
+			} else if (limb == BOTH) {
+				timeBoth.add(Long.parseLong(words[6]));
+				timeBoth.add(Long.parseLong(words[7]));
+				timeBoth.add(Long.parseLong(words[8]));
+			}
+			
+		} else if(chartType == COMPARAR_LADO_DO_CORPO) {
+			int side = checkForSides(words);
+			if (side == LEFT_SIDE) {
+				timeLeftSide.add(Long.parseLong(words[6]));
+				timeLeftSide.add(Long.parseLong(words[7]));
+				timeLeftSide.add(Long.parseLong(words[8]));
+			} else if (side == RIGHT_SIDE) {
+				timeRightSide.add(Long.parseLong(words[6]));
+				timeRightSide.add(Long.parseLong(words[7]));
+				timeRightSide.add(Long.parseLong(words[8]));
+			} else if (side == BOTH) {
+				timeBoth.add(Long.parseLong(words[6]));
+				timeBoth.add(Long.parseLong(words[7]));
+				timeBoth.add(Long.parseLong(words[8]));
+			}
+			
+		} else if (chartType == COMPARAR_USUARIOS) {
+			int user = checkForUsers(words);
+			if (user == 1) {
+				timeUser1.add(Long.parseLong(words[6]));
+				timeUser1.add(Long.parseLong(words[7]));
+				timeUser1.add(Long.parseLong(words[8]));
+			} else if (user == 2) {
+				timeUser2.add(Long.parseLong(words[6]));
+				timeUser2.add(Long.parseLong(words[7]));
+				timeUser2.add(Long.parseLong(words[8]));
+			} else if (user == 3) {
+				timeUser3.add(Long.parseLong(words[6]));
+				timeUser3.add(Long.parseLong(words[7]));
+				timeUser3.add(Long.parseLong(words[8]));
+			} else if (user == 4) {
+				timeUser4.add(Long.parseLong(words[6]));
+				timeUser4.add(Long.parseLong(words[7]));
+				timeUser4.add(Long.parseLong(words[8]));
+			}
+		}
+	}
+	
+	// verifica a informação da linha
+	public boolean checkForInformation(String[] words) {
+		if (words.length == 9 &&
+				areEqual(user1, words[0]) &&
+				areEqual(getTrainingModeName(), words[1]) &&
+				areEqual(getLimbName(), words[2]) &&
+				areEqual(getPhysicalConditionName(), words[3]) &&
+				areEqual(getSideName(), words[4]) &&
+				areEqual(getDistanceName(), words[5])) {
+			return true;
+		}
+		return false;
+	}
+	
+	// verifica qual é o dispositivo
+	public int checkForDevices(String[] words) {
+		if (words.length == 10 &&
+				areEqual(user1, words[0]) &&
+				areEqual(getTrainingModeName(), words[1]) &&
+				areEqual(getLimbName(), words[2]) &&
+				areEqual(getPhysicalConditionName(), words[3]) &&
+				areEqual(getSideName(), words[4]) &&
+				areEqual(getDistanceName(), words[5])) {
+			if (areEqual(words[9], "ad")) {
+				return AD;
+			} else if (areEqual(words[9], "ae")) {
+				return AE;
+			} else if (areEqual(words[9], "bd")) {
+				return BD;
+			} else if (areEqual(words[9], "be")) {
+				return BE;
+			}
+		}
+		return -1;
+	}
+	
+	// verifica qual é o estado físico
+	public int checkForPhysicalConditions(String[] words) {
+		if (words.length == 9 &&
+				areEqual(user1, words[0]) &&
+				areEqual(getTrainingModeName(), words[1]) &&
+				areEqual(getLimbName(), words[2]) &&
+				areEqual(getSideName(), words[4]) &&
+				areEqual(getDistanceName(), words[5])) {
+			if (areEqual("Descansado", words[3])) {
+				return RESTED;
+			} else if (areEqual("Cansado", words[3])) {
+				return TIRED;
+			}
+		}
+		return -1;
+	}
+	
+	// verifica quais são os membros
+	public int checkForLimbs(String[] words) {
+		if (words.length == 9 &&
+				areEqual(user1, words[0]) &&
+				areEqual(getTrainingModeName(), words[1]) &&
+				areEqual(getPhysicalConditionName(), words[3]) &&
+				areEqual(getSideName(), words[4]) &&
+				areEqual(getDistanceName(), words[5])) {
+			if (areEqual("Superiores", words[2])) {
+				return UPPER_LIMB;
+			} else if (areEqual("Inferiores", words[2])) {
+				return LOWER_LIMB;
+			} else if (areEqual("Ambos", words[2])) {
+				return BOTH;
+			}
+		}
+		return -1;
+	}
+
+	// verifica qual é o lado
+	public int checkForSides(String[] words) {
+		if (words.length == 9 &&
+				areEqual(user1, words[0]) &&
+				areEqual(getTrainingModeName(), words[1]) &&
+				areEqual(getLimbName(), words[2]) &&
+				areEqual(getPhysicalConditionName(), words[3]) &&
+				areEqual(getDistanceName(), words[5])) {
+			if (areEqual("Esquerdo", words[4])) {
+				return LEFT_SIDE;
+			} else if (areEqual("Direito", words[4])) {
+				return RIGHT_SIDE;
+			} else if (areEqual("Ambos", words[4])) {
+				return BOTH;
+			}
+			
+		}
+		return -1;
+	}
+	
+	// verifica qual é o usuário
+	public int checkForUsers(String[] words) {
+		if (words.length == 9 &&
+				areEqual(getTrainingModeName(), words[1]) &&
+				areEqual(getLimbName(), words[2]) &&
+				areEqual(getPhysicalConditionName(), words[3]) &&
+				areEqual(getSideName(), words[4]) &&
+				areEqual(getDistanceName(), words[5])) {
+			if (areEqual(user1, words[0])) {
+				System.out.println("user1");
+				return 1;
+			} else if (areEqual(user2, words[0])) {
+				System.out.println("user2");
+				return 2;
+			} else if (areEqual(user3, words[0])) {
+				System.out.println("user3");
+				return 3;
+			} else if (areEqual(user4, words[0])) {
+				System.out.println("user4");
+				return 4;
+			}
+		}
+		return -1;
+	}
+	
+	// verifica se as strings são iguais
+	public boolean areEqual(String word1, String word2) {
+		return word1.equals(word2);
+	}
+	
+	// verifica se as strings são iguais
+	public boolean areEqual(String word1, String word2, String word3) {
+		if (word1.equals(word2) ||
+				word1.equals(word3) ||
+				word2.equals(word3) ) {
+			return true;
+		}
+		return false;
+	}
+	
+	// verifica se as strings são iguais
+	public boolean areEqual(String word1, String word2, String word3, String word4) {
+		if (word1.equals(word2) ||
+				word1.equals(word3) ||
+				word1.equals(word4) ||
+				word2.equals(word3) ||
+				word2.equals(word4) ||
+				word3.equals(word4) ) {
+			return true;
+		}
+		return false;
+	}
+	
+	// verifica se os números são iguais
+	public boolean areEqual(int num1, int num2) {
+		if (num1 == num2) {
+			return true;
+		}
+		return false;
+	}
+	
+	// salva os resultados
+	public void saveResult(String fileName) {
+		String text;
+		for (int i = 0; i < 5; i++) {
+			text = currentUser + " " +
+					getTrainingModeName() + " " +
+					getLimbName() + " " +
+					getPhysicalConditionName() + " " +
+					getSideName() + " " +
+					getDistanceName() + " " +
+					time[i][0] + " " +
+					time[i][1] + " " +
+					time[i][2];
+			
+			if (i == 1) {
+				text += " " + "ad";
+			} else if (i == 2) {
+				text += " " + "ae";
+			} else if (i == 3) {
+				text += " " + "bd";
+			} else if (i == 4) {
+				text += " " + "be";
+			}
+			
+			fileManager.saveResultsToTxt(fileName, text);
+		}
+	}
+	
+	// retorna o nome do treinamento
+	public String getTrainingModeName() {
+		if (trainingMode == AGAINST_GROUP_MODE) {
+			return "Grupo";
+		} else if (trainingMode == SEQUENCE_MODE) {
+			return "Sequencial";
+		}
+		return "Aleatório";
+	}
+	
+	// retorna o nome dos membros
+	public String getLimbName() {
+		if (limb == LOWER_LIMB) {
+			return "Inferiores";
+		} else if (limb == UPPER_LIMB) {
+			return "Superiores";
+		}
+		return "Ambos";
+	}
+	
+	// retorna o nome do lado
+	public String getSideName() {
+		if (side == LEFT_SIDE) {
+			return "Esquerdo";
+		} else if (side == RIGHT_SIDE) {
+			return "Direito";
+		}
+		return "Ambos";
+	}
+	
+	// retorna o nome do estado físico
+	public String getPhysicalConditionName() {
+		if (physicalCondition == TIRED) {
+			return "Cansado";
+		}
+		return "Descansado";
+	}
+	
+	// retorna o nome das distâncias entre os dispositivos
+	public String getDistanceName() {
+		if (distance == SHORT_DISTANCE) {
+			return "Curtas";
+		}
+		return "Longas";
+	}
+
+	// retorna o módulo de treinamento
+	public int getTrainingModeNum(String name) {
+		if (name == "Grupo") {
+			return AGAINST_GROUP_MODE;
+		} else if (name == "Sequencial") {
+			return SEQUENCE_MODE;
+		}
+		return RANDOM_MODE;
+	}
+	
+	// retorna os membros
+	public int getLimbNum(String name) {
+		if (name == "Inferiores") {
+			return LOWER_LIMB;
+		} else if (name == "Superiores") {
+			return UPPER_LIMB;
+		}
+		return BOTH;
+	}
+	
+	// retorna o lado
+	public int getSideNum(String name) {
+		if (name == "Esquerdo") {
+			return LEFT_SIDE;
+		} else if (name == "Direito") {
+			return RIGHT_SIDE;
+		}
+		return BOTH;
+	}
+	
+	// retorna o estado físico
+	public int getPhysicalConditionNum(String name) {
+		if (name == "Cansado") {
+			return TIRED;
+		}
+		return RESTED;
+	}
+	
+	// retorna o número do dispositivo
+	public int getDistanceNum(String name) {
+		if (name == "Curtas") {
+			return SHORT_DISTANCE;
+		}
+		return LONG_DISTANCE;
+	}
+	
+	// define a posição dos dispositivos
+	public void setPositionDevice(int deviceNum, String altura, String lado) {
+		if (altura == "Alto") {
+			if (lado == "Direito") {
+				if (deviceNum == 1) {
+					positionDevice1 = AD;
+				} else if (deviceNum == 2) {
+					positionDevice2 = AD;
+				} else if (deviceNum == 3) {
+					positionDevice3 = AD;
+				} else if (deviceNum == 4) {
+					positionDevice4 = AD;
+				} else if (deviceNum == 5) {
+					positionDevice5 = AD;
+				} else if (deviceNum == 6) {
+					positionDevice6 = AD;
+				} else if (deviceNum == 7) {
+					positionDevice7 = AD;
+				}
+			} else if (lado == "Esquerdo") {
+				if (deviceNum == 1) {
+					positionDevice1 = AE;
+				} else if (deviceNum == 2) {
+					positionDevice2 = AE;
+				} else if (deviceNum == 3) {
+					positionDevice3 = AE;
+				} else if (deviceNum == 4) {
+					positionDevice4 = AE;
+				} else if (deviceNum == 5) {
+					positionDevice5 = AE;
+				} else if (deviceNum == 6) {
+					positionDevice6 = AE;
+				} else if (deviceNum == 7) {
+					positionDevice7 = AE;
+				}
+			}
+		} else if (altura == "Baixo") {
+			if (lado == "Direito") {
+				if (deviceNum == 1) {
+					positionDevice1 = BD;
+				} else if (deviceNum == 2) {
+					positionDevice2 = BD;
+				} else if (deviceNum == 3) {
+					positionDevice3 = BD;
+				} else if (deviceNum == 4) {
+					positionDevice4 = BD;
+				} else if (deviceNum == 5) {
+					positionDevice5 = BD;
+				} else if (deviceNum == 6) {
+					positionDevice6 = BD;
+				} else if (deviceNum == 7) {
+					positionDevice7 = BD;
+				}
+			} else if (lado == "Esquerdo") {
+				if (deviceNum == 1) {
+					positionDevice1 = BE;
+				} else if (deviceNum == 2) {
+					positionDevice2 = BE;
+				} else if (deviceNum == 3) {
+					positionDevice3 = BE;
+				} else if (deviceNum == 4) {
+					positionDevice4 = BE;
+				} else if (deviceNum == 5) {
+					positionDevice5 = BE;
+				} else if (deviceNum == 6) {
+					positionDevice6 = BE;
+				} else if (deviceNum == 7) {
+					positionDevice7 = BE;
+				}
+			}
+		}
+	}
+	
+	// esvazia as listas
+	public void clearTimeLists() {
+		times.clear();
+		timeUser1.clear();
+		timeUser2.clear();
+		timeUser3.clear();
+		timeUser4.clear();
+		timeRested.clear();
+		timeTired.clear();
+		timeUpperLimb.clear();
+		timeLowerLimb.clear();
+		timeLeftSide.clear();
+		timeRightSide.clear();
+		timeBoth.clear();
+		timeDeviceAD.clear();
+		timeDeviceAE.clear();
+		timeDeviceBD.clear();
+		timeDeviceBE.clear();
+	}
+	
+}
