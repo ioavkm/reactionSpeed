@@ -1,0 +1,41 @@
+/** Classe dedicada a uma porta específica, de modo que é criado um objeto desta classe para cada uma das portas de comunicação serial abertas.
+ * Ela contém suas informações básicas e trata os dados que chegam à ela. Para isto, a classe implementa a interface SerialPortEventListener
+ * a fim de conseguir captar as mensagens que chegam à porta no momento em que elas chegam.
+ */
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import gnu.io.SerialPort;
+import gnu.io.SerialPortEvent;
+import gnu.io.SerialPortEventListener;
+
+/** Handle one port. */
+public class SinglePort implements SerialPortEventListener {
+	
+	String portName;
+    SerialPort serialPort;
+	InputStream input;
+	static OutputStream output;
+	CommunicateArduino ca = new CommunicateArduino();
+	
+	// construtor
+	public SinglePort(String name, SerialPort port) throws IOException {
+		portName = name;
+		serialPort = port;
+		input = serialPort.getInputStream();
+	}
+
+	// chamada quando um novo dado chega à porta serial
+	public synchronized void serialEvent(SerialPortEvent pEvent) {
+		if (pEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
+			try {
+				ca.addData((byte)input.read());
+			} catch (Exception e) {
+				System.err.println(e.toString() + " in port: " + portName);
+			}
+		}
+	}
+	
+}
