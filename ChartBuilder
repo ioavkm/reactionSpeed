@@ -1,0 +1,366 @@
+/** Classe responsável pela construção de gráficos, segundo dados coletados de um arquivo de texto.*/
+
+import java.awt.Color; 
+import java.awt.BasicStroke; 
+
+import org.jfree.chart.ChartPanel; 
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.xy.DefaultTableXYDataset;
+import org.jfree.data.xy.XYDataset; 
+import org.jfree.data.xy.XYSeries; 
+import org.jfree.chart.plot.XYPlot; 
+import org.jfree.chart.ChartFactory; 
+import org.jfree.chart.plot.PlotOrientation; 
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.data.xy.YIntervalSeries;
+import org.jfree.data.xy.YIntervalSeriesCollection;
+import org.jfree.ui.Layer;
+import org.jfree.chart.renderer.xy.DeviationRenderer;
+import org.jfree.chart.renderer.xy.XYErrorRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.YIntervalRenderer;
+import org.jfree.chart.plot.IntervalMarker;
+
+
+public class ChartBuilder {
+	
+	public static final String FILE_NAME = "Resultados";
+	
+	public static final int VISUALIZAR_INFORMACOES = 1;
+	public static final int COMPARAR_DISPOSITIVOS = 2;
+	public static final int COMPARAR_ESTADO_FISICO = 3;
+	public static final int COMPARAR_MEMBROS = 4;
+	public static final int COMPARAR_LADO_DO_CORPO = 5;
+	public static final int COMPARAR_USUARIOS = 6;
+	
+	JFreeChart xylineChart;
+	ChartPanel chartPanel;
+	
+	// construtor da classe
+	public ChartBuilder(BasicInfo basicInfo, int chartType) {
+		
+		xylineChart = ChartFactory.createXYLineChart(
+		         getTitle(basicInfo, chartType),
+		         "Pessoa",
+		         "Tempo (ms)",
+		         createDataset(basicInfo, chartType),
+		         PlotOrientation.VERTICAL,
+		         legend(chartType) , true , false);
+		
+		chartPanel = new ChartPanel( xylineChart );	    
+		
+		setRenderer(chartType);
+		
+	}
+	
+	// cria o dataset com as informações pertinentes
+	private XYDataset createDataset(BasicInfo basicInfo, int chartType) {
+		basicInfo.loadTimeHistory(FILE_NAME, chartType);
+		
+		if (chartType == COMPARAR_DISPOSITIVOS)	{
+			return createDatasetForDevices(basicInfo);
+		} else if (chartType == COMPARAR_ESTADO_FISICO) {
+			return createDatasetForPhysicalConditions(basicInfo);
+		} else if (chartType == COMPARAR_MEMBROS) {
+			return createDatasetForLimbs(basicInfo);
+		} else if (chartType == COMPARAR_LADO_DO_CORPO) {
+			return createDatasetForSides(basicInfo);
+		} else if (chartType == COMPARAR_USUARIOS) {
+			return createDatasetForUsers(basicInfo);
+		}
+		
+		return createDatasetForInformation(basicInfo);
+	}
+	
+	// cria o dataset
+	private XYDataset createDatasetForInformation(BasicInfo basicInfo) {
+		final YIntervalSeriesCollection dataset = new YIntervalSeriesCollection( );
+		
+		final YIntervalSeries information = new YIntervalSeries( "Geral" );
+	    for (int i = 0; i < basicInfo.times.size(); i += 3) {
+	    	long time = basicInfo.times.get(i);
+	    	if (time != 0) {
+	    		information.add(i / 3 + 1, time, basicInfo.times.get(i + 1), basicInfo.times.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(information);
+		
+		return dataset;
+	}
+	
+	// cria o dataset
+	private XYDataset createDatasetForDevices(BasicInfo basicInfo) {
+		final YIntervalSeriesCollection dataset = new YIntervalSeriesCollection( );
+		
+		final YIntervalSeries information = new YIntervalSeries( "Geral" );
+	    for (int i = 0; i < basicInfo.times.size(); i += 3) {
+	    	long time = basicInfo.times.get(i);
+	    	if (time != 0) {
+	    		information.add(i / 3 + 1, time, basicInfo.times.get(i + 1), basicInfo.times.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(information);
+	    
+	    final YIntervalSeries deviceAD = new YIntervalSeries( "Alto à direita" );
+	    for (int i = 0; i < basicInfo.timeDeviceAD.size(); i += 3) {
+	    	long time = basicInfo.timeDeviceAD.get(i);
+	    	if (time != 0) {
+	    		deviceAD.add(i / 3 + 1, time, basicInfo.timeDeviceAD.get(i + 1), basicInfo.timeDeviceAD.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(deviceAD);
+	    
+	    final YIntervalSeries deviceAE = new YIntervalSeries( "Alto à esquerda" );
+	    for (int i = 0; i < basicInfo.timeDeviceAE.size(); i += 3) {
+	    	long time = basicInfo.timeDeviceAE.get(i);
+	    	if (time != 0) {
+	    		deviceAE.add(i / 3 + 1, time, basicInfo.timeDeviceAE.get(i + 1), basicInfo.timeDeviceAE.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(deviceAE);
+	    
+	    final YIntervalSeries deviceBD = new YIntervalSeries( "Baixo à direita" );
+	    for (int i = 0; i < basicInfo.timeDeviceBD.size(); i += 3) {
+	    	long time = basicInfo.timeDeviceBD.get(i);
+	    	if (time != 0) {
+	    		deviceBD.add(i / 3 + 1, time, basicInfo.timeDeviceBD.get(i + 1), basicInfo.timeDeviceBD.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(deviceBD);
+	    
+	    final YIntervalSeries deviceBE = new YIntervalSeries( "Baixo à esquerda" );
+	    for (int i = 0; i < basicInfo.timeDeviceBE.size(); i += 3) {
+	    	long time = basicInfo.timeDeviceBE.get(i);
+	    	if (time != 0) {
+	    		deviceBE.add(i / 3 + 1, time, basicInfo.timeDeviceBE.get(i + 1), basicInfo.timeDeviceBE.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(deviceBE);
+		
+		return dataset;
+	}
+	
+	// cria o dataset
+	private XYDataset createDatasetForPhysicalConditions(BasicInfo basicInfo) {
+		final YIntervalSeriesCollection dataset = new YIntervalSeriesCollection( );
+		
+		final YIntervalSeries cansado = new YIntervalSeries( "Cansado" );
+	    for (int i = 0; i < basicInfo.timeTired.size(); i += 3) {
+	    	long time = basicInfo.timeTired.get(i);
+	    	if (time != 0) {
+	    		cansado.add(i / 3 + 1, time, basicInfo.timeTired.get(i + 1), basicInfo.timeTired.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(cansado);
+	    
+	    final YIntervalSeries descansado = new YIntervalSeries( "Descansado" );
+	    for (int i = 0; i < basicInfo.timeRested.size(); i += 3) {
+	    	long time = basicInfo.timeRested.get(i);
+	    	if (time != 0) {
+	    		descansado.add(i / 3 + 1, time, basicInfo.timeRested.get(i + 1), basicInfo.timeRested.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(descansado);
+		
+		return dataset;
+	}
+	
+	// cria o dataset
+	private XYDataset createDatasetForLimbs(BasicInfo basicInfo) {
+		final YIntervalSeriesCollection dataset = new YIntervalSeriesCollection( );
+		
+		final YIntervalSeries membrosSuperiores = new YIntervalSeries( "Membros superiores" );
+	    for (int i = 0; i < basicInfo.timeUpperLimb.size(); i += 3) {
+	    	long time = basicInfo.timeUpperLimb.get(i);
+	    	if (time != 0) {
+	    		membrosSuperiores.add(i / 3 + 1, time, basicInfo.timeUpperLimb.get(i + 1), basicInfo.timeUpperLimb.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(membrosSuperiores);
+	    
+	    final YIntervalSeries membrosInferiores = new YIntervalSeries( "Membros inferiores" );
+	    for (int i = 0; i < basicInfo.timeLowerLimb.size(); i += 3) {
+	    	long time = basicInfo.timeLowerLimb.get(i);
+	    	if (time != 0) {
+	    		membrosInferiores.add(i / 3 + 1, time, basicInfo.timeLowerLimb.get(i + 1), basicInfo.timeLowerLimb.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(membrosInferiores);
+	    
+	    final YIntervalSeries ambos = new YIntervalSeries( "Ambos" );
+	    for (int i = 0; i < basicInfo.timeBoth.size(); i += 3) {
+	    	long time = basicInfo.timeBoth.get(i);
+	    	if (time != 0) {
+	    		ambos.add(i / 3 + 1, time, basicInfo.timeBoth.get(i + 1), basicInfo.timeBoth.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(ambos);
+		
+		return dataset;
+	}
+	
+	// cria o dataset
+	private XYDataset createDatasetForSides(BasicInfo basicInfo) {
+		final YIntervalSeriesCollection dataset = new YIntervalSeriesCollection( );
+		
+		final YIntervalSeries ladoEsquerdo = new YIntervalSeries( "Lado esquerdo" );
+	    for (int i = 0; i < basicInfo.timeLeftSide.size(); i += 3) {
+	    	long time = basicInfo.timeLeftSide.get(i);
+	    	if (time != 0) {
+	    		ladoEsquerdo.add(i / 3 + 1, time, basicInfo.timeLeftSide.get(i + 1), basicInfo.timeLeftSide.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(ladoEsquerdo);
+	    
+	    final YIntervalSeries ladoDireito = new YIntervalSeries( "Lado direito" );
+	    for (int i = 0; i < basicInfo.timeRightSide.size(); i += 3) {
+	    	long time = basicInfo.timeRightSide.get(i);
+	    	if (time != 0) {
+	    		ladoDireito.add(i / 3 + 1, time, basicInfo.timeRightSide.get(i + 1), basicInfo.timeRightSide.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(ladoDireito);
+	    
+	    final YIntervalSeries ambos = new YIntervalSeries( "Ambos" );
+	    for (int i = 0; i < basicInfo.timeBoth.size(); i += 3) {
+	    	long time = basicInfo.timeBoth.get(i);
+	    	if (time != 0) {
+	    		ambos.add(i / 3 + 1, time, basicInfo.timeBoth.get(i + 1), basicInfo.timeBoth.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(ambos);
+		
+		return dataset;
+	}
+	
+	// cria o dataset
+	private XYDataset createDatasetForUsers(BasicInfo basicInfo) {
+		final YIntervalSeriesCollection dataset = new YIntervalSeriesCollection( );
+		
+		final YIntervalSeries user1 = new YIntervalSeries( basicInfo.user1 );
+	    for (int i = 0; i < basicInfo.timeUser1.size(); i += 3) {
+	    	long time = basicInfo.timeUser1.get(i);
+	    	if (time != 0) {
+	    		user1.add(i / 3 + 1, time, basicInfo.timeUser1.get(i + 1), basicInfo.timeUser1.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(user1);
+	    
+	    final YIntervalSeries user2 = new YIntervalSeries( basicInfo.user2 );
+	    for (int i = 0; i < basicInfo.timeUser2.size(); i += 3) {
+	    	long time = basicInfo.timeUser2.get(i);
+	    	if (time != 0) {
+	    		user2.add(i / 3 + 1, time, basicInfo.timeUser2.get(i + 1), basicInfo.timeUser2.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(user2);
+	    
+	    final YIntervalSeries user3 = new YIntervalSeries( basicInfo.user3 );
+	    for (int i = 0; i < basicInfo.timeUser3.size(); i += 3) {
+	    	long time = basicInfo.timeUser3.get(i);
+	    	if (time != 0) {
+	    		user3.add(i / 3 + 1, time, basicInfo.timeUser3.get(i + 1), basicInfo.timeUser3.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(user3);
+	    
+	    final YIntervalSeries user4 = new YIntervalSeries( basicInfo.user4 );
+	    for (int i = 0; i < basicInfo.timeUser4.size(); i += 3) {
+	    	long time = basicInfo.timeUser4.get(i);
+	    	if (time != 0) {
+	    		user4.add(i / 3 + 1, time, basicInfo.timeUser4.get(i + 1), basicInfo.timeUser4.get(i + 2));
+	    	}
+	    }
+	    dataset.addSeries(user4);
+		
+		return dataset;
+	}
+	
+	// define as características gráficas
+	private void setRenderer(int chartType) {
+		final XYPlot plot = xylineChart.getXYPlot( );
+		XYErrorRenderer renderer = new XYErrorRenderer();
+		
+		if (chartType == VISUALIZAR_INFORMACOES) {
+			renderer.setSeriesPaint( 0 , Color.BLUE );
+			renderer.setSeriesStroke( 0 , new BasicStroke( 1.0f ) );
+		} else if (chartType == COMPARAR_DISPOSITIVOS)	{
+			renderer.setSeriesPaint( 0 , Color.BLACK );
+			renderer.setSeriesPaint( 1 , Color.RED );
+			renderer.setSeriesPaint( 2 , Color.GREEN );
+			renderer.setSeriesPaint( 3 , Color.YELLOW );
+			renderer.setSeriesPaint( 4 , Color.BLUE );
+			renderer.setSeriesStroke( 0 , new BasicStroke( 2.0f ) );
+			renderer.setSeriesStroke( 1 , new BasicStroke( 1.0f ) );
+			renderer.setSeriesStroke( 2 , new BasicStroke( 1.0f ) );
+			renderer.setSeriesStroke( 3 , new BasicStroke( 1.0f ) );
+			renderer.setSeriesStroke( 4 , new BasicStroke( 1.0f ) );
+		} else if (chartType == COMPARAR_ESTADO_FISICO) {
+			renderer.setSeriesPaint( 0 , Color.CYAN );
+		    renderer.setSeriesPaint( 1 , Color.ORANGE );
+		    renderer.setSeriesStroke( 0 , new BasicStroke( 1.0f ) );
+		    renderer.setSeriesStroke( 1 , new BasicStroke( 1.0f ) );	
+		} else if (chartType == COMPARAR_MEMBROS || chartType == COMPARAR_LADO_DO_CORPO) {
+			renderer.setSeriesPaint( 0 , Color.RED );
+		    renderer.setSeriesPaint( 1 , Color.GREEN );
+		    renderer.setSeriesPaint( 2 , Color.YELLOW );
+		    renderer.setSeriesStroke( 0 , new BasicStroke( 1.0f ) );
+		    renderer.setSeriesStroke( 1 , new BasicStroke( 1.0f ) );
+		    renderer.setSeriesStroke( 2 , new BasicStroke( 1.0f ) );
+		} else if (chartType == COMPARAR_USUARIOS) {
+			renderer.setSeriesPaint( 0 , Color.BLUE );
+			renderer.setSeriesPaint( 1 , Color.RED );
+			renderer.setSeriesPaint( 2 , Color.GREEN );
+			renderer.setSeriesPaint( 3 , Color.YELLOW );
+			renderer.setSeriesStroke( 0 , new BasicStroke( 1.0f ) );
+			renderer.setSeriesStroke( 1 , new BasicStroke( 1.0f ) );
+			renderer.setSeriesStroke( 2 , new BasicStroke( 1.0f ) );
+			renderer.setSeriesStroke( 3 , new BasicStroke( 1.0f ) );
+		}
+		
+		renderer.setBaseLinesVisible(true);
+	    plot.setRenderer( renderer ); 
+	}
+	
+	// retorna o título do gráfico
+	public String getTitle(BasicInfo basicInfo, int chartType) {
+		String trainingMode = basicInfo.getTrainingModeName();
+		String limb = basicInfo.getLimbName();
+		String physicalCondition = basicInfo.getPhysicalConditionName();
+		String side = basicInfo.getSideName();
+		String distance = basicInfo.getDistanceName();
+		
+		if (chartType == COMPARAR_ESTADO_FISICO) {
+			return "Resultados de " + basicInfo.user1 + " no módulo " + trainingMode +
+					"\nMembros: " + limb + ". Lado: " + side + ". Distâncias: " + distance + ".";
+		} else if (chartType == COMPARAR_MEMBROS) {
+			return "Resultados de " + basicInfo.user1 + " no módulo " + trainingMode +
+					"\nLado: " + side + ". Estado: " + physicalCondition + ". Distâncias: " + distance + ".";
+		} else if (chartType == COMPARAR_LADO_DO_CORPO) {
+			return "Resultados de " + basicInfo.user1 + " no módulo " + trainingMode +
+					"\nMembros: " + limb + ". Estado: " + physicalCondition + ". Distâncias: " + distance + ".";
+		} else if (chartType == COMPARAR_USUARIOS) {
+			return "Resultados do módulo " + trainingMode +
+					"\nMembros: " + limb + ". Lado: " + side + ". Estado: " + physicalCondition + ". Distâncias: " + distance + ".";
+		}
+		return "Resultados de " + basicInfo.user1 + " no módulo " + trainingMode +
+				"\nMembros: " + limb + ". Lado: " + side + ". Estado: " + physicalCondition + ". Distâncias: " + distance + ".";
+	}
+	
+	// diz se deve haver legenda no gráfico
+	public boolean legend(int chartType) {
+		if (chartType == VISUALIZAR_INFORMACOES) {
+			return false;
+		}
+		return true;
+	}
+	
+	public JFreeChart getChart() {
+		return xylineChart;
+	}
+	
+	public ChartPanel getChartPanel() {
+		return chartPanel;
+	}
+	
+}
