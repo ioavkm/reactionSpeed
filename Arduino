@@ -1,0 +1,74 @@
+// definição de pinagem
+int obstacleDetectionPin = 4;
+int bluetoothInput = 10;
+int led = 13;
+int led1 = 3;
+int led2 = 5;
+
+// começa com obstáculo não detectado
+int obstacleDetected = HIGH;
+
+// identificação do dispositivo
+int deviceNum = 1;
+
+boolean ledOn = false;
+unsigned long Time = 0;
+
+void setup() {
+  pinMode(led, OUTPUT);
+  pinMode(led1, OUTPUT);
+  pinMode(led2, OUTPUT);
+  pinMode(obstacleDetectionPin, INPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+
+  if (Serial.available() > 0) {
+    bluetoothInput = Serial.read();
+    
+    // ligar os leds e gravar o tempo
+    if (bluetoothInput == 1 && !ledOn) {
+      digitalWrite(led, HIGH);
+      digitalWrite(led1, HIGH);
+      digitalWrite(led2, HIGH);
+      Time = millis();
+      ledOn = true;
+      
+    // desligar os leds, calcular e enviar o tempo
+    } else if (bluetoothInput == 2 && ledOn) {
+      digitalWrite(led, LOW);
+      digitalWrite(led1, LOW);
+      digitalWrite(led2, LOW);
+      Time = millis() - Time;
+      ledOn = false;
+      byte b[5];
+      IntegerToBytesWithDevice(Time, b);
+      Serial.write(b, 5);
+    }
+  }
+  
+  obstacleDetected = digitalRead(obstacleDetectionPin);
+  
+  // obstáculo detectado
+  if (obstacleDetected == LOW && ledOn) {
+    digitalWrite(led, LOW);
+    digitalWrite(led1, LOW);
+    digitalWrite(led2, LOW);
+    Time = millis() - Time;
+    ledOn = false;
+    byte b[5];
+    IntegerToBytesWithDevice(Time, b);
+    Serial.write(b, 5);
+  }
+}
+
+// converter long para array de 5 bytes, incluindo o deviceNum
+void IntegerToBytesWithDevice(long l, byte b[5])
+{
+  b[4] = (byte )((l >> 24) & 0xff);
+  b[3] = (byte )((l >> 16) & 0xff);
+  b[2] = (byte )((l >> 8) & 0xff);
+  b[1] = (byte )((l) & 0xff);
+  b[0] = deviceNum;
+}
