@@ -1,0 +1,105 @@
+/** Classe que realiza manipulação de arquivos de texto.*/
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class FileManager {
+	
+	// salva "text" no arquivo "fileName"
+	public void saveResultsToTxt(String fileName, String text) {
+		FileWriter fileWriter = null;
+		 
+		try {
+			// true para append, false para overwrite
+			fileWriter = new FileWriter("./files/" + fileName + ".txt", true);
+		 
+			fileWriter.write(text + "\n");
+		 
+			fileWriter.close();
+		 
+		} catch (IOException e) {
+		    e.printStackTrace();
+		} finally {
+		    if (fileWriter != null) {
+		        try {
+		        	fileWriter.close();
+		        } catch (IOException ce) {
+		            ce.printStackTrace();
+		        }
+		    }
+		}
+	}
+	
+	// lê usuários do arquivo
+	public void loadUsersFromTxt(String fileName, BasicInfo basicInfo) {
+		BufferedReader bufferedReader = null;
+		FileReader fileReader = null;
+		
+		try {
+			 
+			fileReader = new FileReader("./files/" + fileName + ".txt");
+			bufferedReader = new BufferedReader(fileReader);
+			
+			String line;
+		 
+			while ((line = bufferedReader.readLine()) != null) {
+				basicInfo.addUser(line);
+			}
+		 
+			bufferedReader.close();
+			fileReader.close();
+		 
+		} catch (IOException e) {
+		    e.printStackTrace();
+		} finally {
+			try {
+				if (bufferedReader != null)
+					bufferedReader.close();
+				if (fileReader != null)
+					fileReader.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+	
+	// lê resultados do arquivo
+	public void loadTimeHistoryFromTxt(String fileName, int chartType, BasicInfo basicInfo) {
+		BufferedReader bufferedReader = null;
+		FileReader fileReader = null;
+		
+		try {
+			 
+			fileReader = new FileReader("./files/" + fileName + ".txt");
+			bufferedReader = new BufferedReader(fileReader);
+			
+			String line;
+		 
+			while ((line = bufferedReader.readLine()) != null) {
+				basicInfo.addTimeHistory(line, chartType);
+			}
+		 
+			bufferedReader.close();
+			fileReader.close();
+		 
+		} catch (IOException e) {
+		    e.printStackTrace();
+		} finally {
+			try {
+				if (bufferedReader != null)
+					bufferedReader.close();
+				if (fileReader != null)
+					fileReader.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+	
+	// imprime o diretório atual
+	public void printCurrentDirectory() {
+		System.out.println("Present Project Directory : "+ System.getProperty("user.dir"));
+	}
+}
