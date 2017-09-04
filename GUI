@@ -1,0 +1,1750 @@
+/** Classe principal do código, pois contém o método main, que inicia a execução do programa.
+ * Além disso, ela realiza as funções relacionadas à interface gráfica que fará a interação com o usuário,
+ * incluindo a criação e a organização de telas e seus componentes, juntamente com suas respectivas funcionalidades.
+ */
+
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import java.awt.CardLayout;
+import javax.swing.JPanel;
+import javax.swing.JButton;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.JTextField;
+
+import org.jfree.chart.ChartPanel;
+
+import java.awt.Color;
+import java.awt.Component;
+
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.awt.Font;
+import java.awt.BorderLayout;
+import javax.swing.JComboBox;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JRadioButton;
+import javax.swing.JCheckBox;
+
+public class GUI {
+	
+	public static final String FILE_NAME = "Resultados";
+	
+	public static final int RANDOM_MODE = 1;
+	public static final int AGAINST_GROUP_MODE = 2;
+	public static final int SEQUENCE_MODE = 3;
+	
+	public static final int VISUALIZAR_INFORMACOES = 1;
+	public static final int COMPARAR_DISPOSITIVOS = 2;
+	public static final int COMPARAR_ESTADO_FISICO = 3;
+	public static final int COMPARAR_MEMBROS = 4;
+	public static final int COMPARAR_LADO_DO_CORPO = 5;
+	public static final int COMPARAR_USUARIOS = 6;
+	
+	public static final int DELAY = 1000; //em milisegundos - tempo para começar
+	public static final int PERIOD = 1000; //em milisegundos - periodo para a acao se repetir
+	public static int duracaoTreinamento = 0;
+	public static Timer timer;
+	public static int countDown;
+	
+	boolean pararTreinamento = false;
+
+	private JFrame frame;
+	private JTextField txtUsurio;
+	private JTextField textField;
+	BasicInfo basicInfo = new BasicInfo();
+	private JTextField txtusuario1;
+	private JTextField txtusuario2;
+	private JTable table;
+	
+	CommunicateArduino ca;
+	private JTextField txtusuario3;
+	private JTextField txtusuario4;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		
+		try {
+			EventQueue.invokeLater(new Runnable() {
+				public void run() {
+					try {
+						GUI window = new GUI();
+						window.frame.setVisible(true);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
+		} catch(Exception e){}
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public GUI() {
+		ca = new CommunicateArduino();
+		ca.initialize();
+		ca.clearInputData();
+		initialize();
+	}
+	
+	protected void finalize() throws Throwable {
+		try {
+			ca.close();
+		} finally {
+	         super.finalize();
+	     } 
+		
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		
+//		--------CRIAR JFRAME----------
+		
+		frame = new JFrame();
+		frame.setBounds(100, 100, 750, 495);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(new CardLayout(0, 0));
+		frame.setLocationRelativeTo(null);
+		
+//		--------CRIAR JPANELS----------
+
+		JPanel Initial = new JPanel();
+		frame.getContentPane().add(Initial, "name_17290497887121");
+		GridBagLayout gbl_Initial = new GridBagLayout();
+		gbl_Initial.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_Initial.rowHeights = new int[]{0, 0, 0, 0, 20, 0, 20, 0};
+		Initial.setLayout(gbl_Initial);
+		
+		JPanel Login = new JPanel();
+		frame.getContentPane().add(Login, "name_17297749334011");
+		GridBagLayout gbl_Login = new GridBagLayout();
+		gbl_Login.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_Login.rowHeights = new int[]{0, 0, 0, 0, 0, 20, 0, 0};
+		gbl_Login.columnWidths = new int[]{0, 0, 0, 258};
+		Login.setLayout(gbl_Login);
+		
+		JPanel CriarUsuario = new JPanel();
+		frame.getContentPane().add(CriarUsuario, "name_29363735203771");
+		GridBagLayout gbl_panel = new GridBagLayout();
+		gbl_panel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0};
+		gbl_panel.columnWidths = new int[]{0, 0, 0, 258};
+		gbl_panel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_panel.rowHeights = new int[]{0, 0, 0, 0, 0, 20, 0};
+		gbl_Login.columnWidths = new int[]{0, 0, 0, 258};
+		CriarUsuario.setLayout(gbl_panel);
+		
+		JPanel Modulos = new JPanel();
+		frame.getContentPane().add(Modulos, "name_42204503478894");
+		GridBagLayout gbl_Modulos = new GridBagLayout();
+		gbl_Modulos.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_Modulos.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_Modulos.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_Modulos.rowHeights = new int[]{0, 0, 0, 60, 0, 35, 0, 20, 0, 20, 0, 20, 0, 60};
+		Modulos.setLayout(gbl_Modulos);
+		
+		JPanel Graficos = new JPanel();
+		frame.getContentPane().add(Graficos, "name_54224674569743");
+		Graficos.setLayout(new BorderLayout(0, 0));
+
+		JPanel Resultados = new JPanel();
+		frame.getContentPane().add(Resultados, "name_62999066680818");
+		GridBagLayout gbl_Resultados = new GridBagLayout();
+		gbl_Resultados.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_Resultados.rowHeights = new int[]{0, 0, 60, 0, 0, 0, 0, 0, 45, 0, 0, 0, 0};
+		gbl_Resultados.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_Resultados.columnWidths = new int[]{0, 120, 5, 0, 0, 5, 0, 0};
+		Resultados.setLayout(gbl_Resultados);
+		
+		JPanel AleatorioSetup = new JPanel();
+		frame.getContentPane().add(AleatorioSetup, "name_4977506738781");
+		GridBagLayout gbl_AleatorioSetup = new GridBagLayout();
+		gbl_AleatorioSetup.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_AleatorioSetup.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_AleatorioSetup.rowHeights = new int[]{0, 40, 0, 0, 0, 0, 0, 20, 0, 0, 0};
+		gbl_AleatorioSetup.columnWidths = new int[]{0, 120, 0, 100, 0, 0, 0};
+		AleatorioSetup.setLayout(gbl_AleatorioSetup);
+		
+		JPanel Treinamento = new JPanel();
+		frame.getContentPane().add(Treinamento, "name_7544396037697");
+		GridBagLayout gbl_Treinamento = new GridBagLayout();
+		gbl_Treinamento.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0};
+		gbl_Treinamento.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_Treinamento.rowHeights = new int[]{0, 0, 80, 0, 0, 80, 0};
+		gbl_Treinamento.columnWidths = new int[]{0, 130, 0, 130};
+		Treinamento.setLayout(gbl_Treinamento);
+		
+		JPanel GrupoSetup = new JPanel();
+		frame.getContentPane().add(GrupoSetup, "name_11915406735762");
+		GridBagLayout gbl_GrupoSetup = new GridBagLayout();
+		gbl_GrupoSetup.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_GrupoSetup.rowHeights = new int[]{0, 0, 40, 0, 0, 0, 0, 0, 0, 20, 0, 0};
+		gbl_GrupoSetup.columnWeights = new double[]{0.0, 0.0, 0.0};
+		gbl_GrupoSetup.columnWidths = new int[]{120, 0, 100};
+		GrupoSetup.setLayout(gbl_GrupoSetup);
+		
+		JPanel SequencialSetup = new JPanel();
+		frame.getContentPane().add(SequencialSetup, "name_12954734849091");
+		GridBagLayout gbl_SequencialSetup = new GridBagLayout();
+		gbl_SequencialSetup.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_SequencialSetup.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_SequencialSetup.rowHeights = new int[]{0, 40, 0, 0, 0, 0, 0, 20, 0, 0};
+		gbl_SequencialSetup.columnWidths = new int[]{0, 120, 0, 100, 0, 0, 0};
+		SequencialSetup.setLayout(gbl_SequencialSetup);
+		
+		JPanel TreinamentoConcluido = new JPanel();
+		frame.getContentPane().add(TreinamentoConcluido, "name_1028735375289");
+		GridBagLayout gbl_TreinamentoConcluido = new GridBagLayout();
+		gbl_TreinamentoConcluido.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_TreinamentoConcluido.rowHeights = new int[]{0, 0, 50, 0, 30, 0, 0, 0, 30, 0, 20, 0};
+		gbl_TreinamentoConcluido.columnWidths = new int[]{0, 200, 200, 0};
+		TreinamentoConcluido.setLayout(gbl_TreinamentoConcluido);
+		
+		JPanel DevicesSetup = new JPanel();
+		frame.getContentPane().add(DevicesSetup, "name_212832119843633");
+		GridBagLayout gbl_DevicesSetup = new GridBagLayout();
+		gbl_DevicesSetup.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_DevicesSetup.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		gbl_DevicesSetup.rowHeights = new int[]{0, 45, 0, 10, 0, 0, 0, 0, 0, 0, 0, 25, 0};
+		gbl_DevicesSetup.columnWidths = new int[]{0, 0, 180, 180, 0};
+		DevicesSetup.setLayout(gbl_DevicesSetup);
+		
+		JButton btnVoltar = new JButton("Voltar");
+		btnVoltar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Resultados.setEnabled(true);
+				Resultados.setVisible(true);
+				Graficos.setEnabled(false);
+				Graficos.setVisible(false);
+				
+				Component[] componentList = Graficos.getComponents();
+
+				//Loop pelos componentes
+				for(Component c : componentList){
+
+				    //encontra os componentes que devem ser removidos
+				    if(c instanceof ChartPanel){
+
+				        //remove
+				        Graficos.remove(c);
+				    }
+				}
+			}
+		});
+		Graficos.add(btnVoltar, BorderLayout.SOUTH);
+		
+		String[] numUsers = {"1", "2"};
+		
+		JLabel lblPreenchaOsCampos = new JLabel("Preencha os Campos Abaixo:");
+		lblPreenchaOsCampos.setFont(new Font("Lucida Grande", Font.PLAIN, 26));
+		GridBagConstraints gbc_lblPreenchaOsCampos = new GridBagConstraints();
+		gbc_lblPreenchaOsCampos.insets = new Insets(0, 0, 5, 0);
+		gbc_lblPreenchaOsCampos.gridx = 0;
+		gbc_lblPreenchaOsCampos.gridy = 1;
+		gbc_lblPreenchaOsCampos.gridwidth = 8;
+		Resultados.add(lblPreenchaOsCampos, gbc_lblPreenchaOsCampos);
+		
+		JLabel lblUsurio_1 = new JLabel("Usuário 1:");
+		GridBagConstraints gbc_lblUsurio_1 = new GridBagConstraints();
+		gbc_lblUsurio_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblUsurio_1.anchor = GridBagConstraints.EAST;
+		gbc_lblUsurio_1.gridx = 0;
+		gbc_lblUsurio_1.gridy = 3;
+		Resultados.add(lblUsurio_1, gbc_lblUsurio_1);
+		
+		txtusuario1 = new JTextField();
+		GridBagConstraints gbc_txtusuario1 = new GridBagConstraints();
+		gbc_txtusuario1.insets = new Insets(0, 0, 5, 5);
+		gbc_txtusuario1.fill = GridBagConstraints.BOTH;
+		gbc_txtusuario1.gridx = 1;
+		gbc_txtusuario1.gridy = 3;
+		Resultados.add(txtusuario1, gbc_txtusuario1);
+		txtusuario1.setColumns(10);
+		
+		JLabel lblMdulo = new JLabel("Módulo:");
+		GridBagConstraints gbc_lblMdulo = new GridBagConstraints();
+		gbc_lblMdulo.anchor = GridBagConstraints.EAST;
+		gbc_lblMdulo.insets = new Insets(0, 0, 5, 5);
+		gbc_lblMdulo.gridx = 3;
+		gbc_lblMdulo.gridy = 3;
+		Resultados.add(lblMdulo, gbc_lblMdulo);
+		
+		String[] modes = {"Aleatório", "Grupo", "Sequencial"};
+		JComboBox comboBox_1 = new JComboBox(modes);
+		GridBagConstraints gbc_comboBox_1 = new GridBagConstraints();
+		gbc_comboBox_1.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_1.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_1.gridx = 4;
+		gbc_comboBox_1.gridy = 3;
+		Resultados.add(comboBox_1, gbc_comboBox_1);
+		
+		JLabel lblObjetivo = new JLabel("Objetivo:");
+		GridBagConstraints gbc_lblObjetivo = new GridBagConstraints();
+		gbc_lblObjetivo.anchor = GridBagConstraints.EAST;
+		gbc_lblObjetivo.insets = new Insets(0, 0, 5, 5);
+		gbc_lblObjetivo.gridx = 6;
+		gbc_lblObjetivo.gridy = 3;
+		Resultados.add(lblObjetivo, gbc_lblObjetivo);
+		
+		String[] objectives = {"Visualizar informações", "Comparar posições", "Comparar estados físicos", "Comparar membros", "Comparar lados", "Comparar usuários"};
+		JComboBox comboBox_5 = new JComboBox(objectives);
+		GridBagConstraints gbc_comboBox_5 = new GridBagConstraints();
+		gbc_comboBox_5.anchor = GridBagConstraints.WEST;
+		gbc_comboBox_5.insets = new Insets(0, 0, 5, 0);
+		gbc_comboBox_5.gridx = 7;
+		gbc_comboBox_5.gridy = 3;
+		Resultados.add(comboBox_5, gbc_comboBox_5);
+		
+		JLabel lblUsurio_2 = new JLabel("Usuário 2:");
+		GridBagConstraints gbc_lblUsurio_2 = new GridBagConstraints();
+		gbc_lblUsurio_2.anchor = GridBagConstraints.EAST;
+		gbc_lblUsurio_2.insets = new Insets(0, 0, 5, 5);
+		gbc_lblUsurio_2.gridx = 0;
+		gbc_lblUsurio_2.gridy = 4;
+		Resultados.add(lblUsurio_2, gbc_lblUsurio_2);
+		
+		txtusuario2 = new JTextField();
+		GridBagConstraints gbc_txtusuario2 = new GridBagConstraints();
+		gbc_txtusuario2.insets = new Insets(0, 0, 5, 5);
+		gbc_txtusuario2.fill = GridBagConstraints.BOTH;
+		gbc_txtusuario2.gridx = 1;
+		gbc_txtusuario2.gridy = 4;
+		Resultados.add(txtusuario2, gbc_txtusuario2);
+		txtusuario2.setColumns(10);
+		
+		JLabel lblMembros = new JLabel("Membros:");
+		GridBagConstraints gbc_lblMembros = new GridBagConstraints();
+		gbc_lblMembros.anchor = GridBagConstraints.EAST;
+		gbc_lblMembros.insets = new Insets(0, 0, 5, 5);
+		gbc_lblMembros.gridx = 3;
+		gbc_lblMembros.gridy = 4;
+		Resultados.add(lblMembros, gbc_lblMembros);
+		
+		String[] limbs = {"Superiores", "Inferiores", "Ambos"};
+		JComboBox comboBox = new JComboBox(limbs);
+		GridBagConstraints gbc_comboBox = new GridBagConstraints();
+		gbc_comboBox.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox.gridx = 4;
+		gbc_comboBox.gridy = 4;
+		Resultados.add(comboBox, gbc_comboBox);
+		
+		JLabel lblUsurio_3 = new JLabel("Usuário 3:");
+		GridBagConstraints gbc_lblUsurio_3 = new GridBagConstraints();
+		gbc_lblUsurio_3.anchor = GridBagConstraints.EAST;
+		gbc_lblUsurio_3.insets = new Insets(0, 0, 5, 5);
+		gbc_lblUsurio_3.gridx = 0;
+		gbc_lblUsurio_3.gridy = 5;
+		Resultados.add(lblUsurio_3, gbc_lblUsurio_3);
+		
+		txtusuario3 = new JTextField();
+		GridBagConstraints gbc_txtusuario3 = new GridBagConstraints();
+		gbc_txtusuario3.fill = GridBagConstraints.BOTH;
+		gbc_txtusuario3.insets = new Insets(0, 0, 5, 5);
+		gbc_txtusuario3.gridx = 1;
+		gbc_txtusuario3.gridy = 5;
+		Resultados.add(txtusuario3, gbc_txtusuario3);
+		txtusuario3.setColumns(10);
+		
+		JLabel lblEstadoFsico = new JLabel("Estado físico:");
+		GridBagConstraints gbc_lblEstadoFsico = new GridBagConstraints();
+		gbc_lblEstadoFsico.anchor = GridBagConstraints.EAST;
+		gbc_lblEstadoFsico.insets = new Insets(0, 0, 5, 5);
+		gbc_lblEstadoFsico.gridx = 3;
+		gbc_lblEstadoFsico.gridy = 5;
+		Resultados.add(lblEstadoFsico, gbc_lblEstadoFsico);
+		
+		String[] physicalConditions = {"Descansado", "Cansado"};
+		JComboBox comboBox_2 = new JComboBox(physicalConditions);
+		GridBagConstraints gbc_comboBox_2 = new GridBagConstraints();
+		gbc_comboBox_2.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_2.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_2.gridx = 4;
+		gbc_comboBox_2.gridy = 5;
+		Resultados.add(comboBox_2, gbc_comboBox_2);
+		
+		JLabel lblUsurio_4 = new JLabel("Usuário 4:");
+		GridBagConstraints gbc_lblUsurio_4 = new GridBagConstraints();
+		gbc_lblUsurio_4.anchor = GridBagConstraints.EAST;
+		gbc_lblUsurio_4.insets = new Insets(0, 0, 5, 5);
+		gbc_lblUsurio_4.gridx = 0;
+		gbc_lblUsurio_4.gridy = 6;
+		Resultados.add(lblUsurio_4, gbc_lblUsurio_4);
+		
+		txtusuario4 = new JTextField();
+		GridBagConstraints gbc_txtusuario4 = new GridBagConstraints();
+		gbc_txtusuario4.fill = GridBagConstraints.BOTH;
+		gbc_txtusuario4.insets = new Insets(0, 0, 5, 5);
+		gbc_txtusuario4.gridx = 1;
+		gbc_txtusuario4.gridy = 6;
+		Resultados.add(txtusuario4, gbc_txtusuario4);
+		txtusuario4.setColumns(10);
+		
+		JLabel lblLado = new JLabel("Lado:");
+		GridBagConstraints gbc_lblLado = new GridBagConstraints();
+		gbc_lblLado.anchor = GridBagConstraints.EAST;
+		gbc_lblLado.insets = new Insets(0, 0, 5, 5);
+		gbc_lblLado.gridx = 3;
+		gbc_lblLado.gridy = 6;
+		Resultados.add(lblLado, gbc_lblLado);
+		
+		String[] sides = {"Esquerdo", "Direito", "Ambos"};
+		JComboBox comboBox_3 = new JComboBox(sides);
+		GridBagConstraints gbc_comboBox_3 = new GridBagConstraints();
+		gbc_comboBox_3.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_3.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_3.gridx = 4;
+		gbc_comboBox_3.gridy = 6;
+		Resultados.add(comboBox_3, gbc_comboBox_3);
+		
+		JLabel lblDistncias = new JLabel("Distâncias:");
+		GridBagConstraints gbc_lblDistncias = new GridBagConstraints();
+		gbc_lblDistncias.anchor = GridBagConstraints.EAST;
+		gbc_lblDistncias.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDistncias.gridx = 3;
+		gbc_lblDistncias.gridy = 7;
+		Resultados.add(lblDistncias, gbc_lblDistncias);
+		
+		String[] distances = {"Longas", "Curtas"};
+		JComboBox comboBox_4 = new JComboBox(distances);
+		GridBagConstraints gbc_comboBox_4 = new GridBagConstraints();
+		gbc_comboBox_4.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_4.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_4.gridx = 4;
+		gbc_comboBox_4.gridy = 7;
+		Resultados.add(comboBox_4, gbc_comboBox_4);
+		
+		JButton btnBuscar = new JButton("     Buscar     ");
+		btnBuscar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				basicInfo.loadUsers(FILE_NAME);
+				
+				String user1 = txtusuario1.getText();
+				String user2 = txtusuario2.getText();
+				String user3 = txtusuario3.getText();
+				String user4 = txtusuario4.getText();
+				String trainingModeSelected = (String) comboBox_1.getSelectedItem();
+				String limbSelected = (String) comboBox.getSelectedItem();
+				String physicalConditionSelected = (String) comboBox_2.getSelectedItem();
+				String sideSelected = (String) comboBox_3.getSelectedItem();
+				String distancesSelected = (String) comboBox_4.getSelectedItem();
+				String objectiveSelected = (String) comboBox_5.getSelectedItem();
+				
+				basicInfo.user1 = user1;
+				basicInfo.user2 = user2;
+				basicInfo.user3 = user3;
+				basicInfo.user4 = user4;
+				basicInfo.trainingMode = basicInfo.getTrainingModeNum(trainingModeSelected);
+				basicInfo.limb = basicInfo.getLimbNum(limbSelected);
+				basicInfo.physicalCondition = basicInfo.getPhysicalConditionNum(physicalConditionSelected);
+				basicInfo.side = basicInfo.getSideNum(sideSelected);
+				basicInfo.distance = basicInfo.getDistanceNum(distancesSelected);
+				
+				ChartBuilder chart = null;
+				boolean drawChart = false;
+				
+				if (!basicInfo.verifyUser(user1)) {
+					JOptionPane.showMessageDialog(null, "Nome do usuário 1 inválido: tente novamente.", "Busca: usuário inválido", JOptionPane.PLAIN_MESSAGE);
+				} else if (objectiveSelected == "Comparar posições") {
+					chart = new ChartBuilder(basicInfo, COMPARAR_DISPOSITIVOS);
+					drawChart = true;
+				} else if (objectiveSelected == "Comparar estados físicos") {
+					chart = new ChartBuilder(basicInfo, COMPARAR_ESTADO_FISICO);
+					drawChart = true;
+				} else if (objectiveSelected == "Comparar membros") {
+					chart = new ChartBuilder(basicInfo, COMPARAR_MEMBROS);
+					drawChart = true;
+				} else if (objectiveSelected == "Comparar lados") {
+					chart = new ChartBuilder(basicInfo, COMPARAR_LADO_DO_CORPO);
+					drawChart = true;
+				} else if (objectiveSelected == "Comparar usuários") {
+					if (!basicInfo.verifyUser(user2) || basicInfo.areEqual(user1, user2)) {
+						JOptionPane.showMessageDialog(null, "Nome do usuário 2 inválido: tente novamente.", "Busca: usuário inválido", JOptionPane.PLAIN_MESSAGE);
+					} else {
+						chart = new ChartBuilder(basicInfo, COMPARAR_USUARIOS);
+						drawChart = true;
+					}
+				} else {
+					chart = new ChartBuilder(basicInfo, VISUALIZAR_INFORMACOES);
+					drawChart = true;
+				}			
+				if (drawChart) {
+					ChartPanel CP = chart.getChartPanel();
+					Graficos.add(CP,BorderLayout.CENTER);
+					Graficos.revalidate();
+					Graficos.repaint();
+					
+					Graficos.setEnabled(true);
+					Graficos.setVisible(true);
+					Resultados.setEnabled(false);
+					Resultados.setVisible(false);
+				}
+			}
+		});
+		
+		GridBagConstraints gbc_btnBuscar = new GridBagConstraints();
+		gbc_btnBuscar.insets = new Insets(0, 0, 5, 5);
+		gbc_btnBuscar.gridx = 4;
+		gbc_btnBuscar.gridy = 9;
+		Resultados.add(btnBuscar, gbc_btnBuscar);
+		
+		JButton btnCancelar_2 = new JButton("    Cancelar   ");
+		btnCancelar_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Initial.setEnabled(true);
+				Initial.setVisible(true);
+				Resultados.setEnabled(false);
+				Resultados.setVisible(false);
+			}
+		});
+		GridBagConstraints gbc_btnCancelar_2 = new GridBagConstraints();
+		gbc_btnCancelar_2.insets = new Insets(0, 0, 5, 5);
+		gbc_btnCancelar_2.gridx = 4;
+		gbc_btnCancelar_2.gridy = 10;
+		Resultados.add(btnCancelar_2, gbc_btnCancelar_2);
+		
+		JButton btnLogin = new JButton("Login"); //botao login jpanel initial
+		btnLogin.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Login.setEnabled(true);
+				Login.setVisible(true);
+				Initial.setEnabled(false);
+				Initial.setVisible(false);
+			}
+		});
+		GridBagConstraints gbc_btnLogin = new GridBagConstraints();
+		gbc_btnLogin.fill = GridBagConstraints.BOTH;
+		gbc_btnLogin.insets = new Insets(0, 0, 5, 0);
+		gbc_btnLogin.gridx = 1;
+		gbc_btnLogin.gridy = 3;
+		Initial.add(btnLogin, gbc_btnLogin);
+		
+		JButton btnCriarUsurio = new JButton("Criar usuário");//botao criarusuario jpanel initial
+		btnCriarUsurio.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				CriarUsuario.setEnabled(true);
+				CriarUsuario.setVisible(true);
+				Initial.setEnabled(false);
+				Initial.setVisible(false);
+			}
+		});
+		GridBagConstraints gbc_btnCriarUsurio = new GridBagConstraints();
+		gbc_btnCriarUsurio.insets = new Insets(0, 0, 5, 0);
+		gbc_btnCriarUsurio.fill = GridBagConstraints.BOTH;
+		gbc_btnCriarUsurio.gridx = 1;
+		gbc_btnCriarUsurio.gridy = 5;
+		Initial.add(btnCriarUsurio, gbc_btnCriarUsurio);
+		
+		JButton btnVerResultados = new JButton("Ver resultados");
+		btnVerResultados.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Resultados.setEnabled(true);
+				Resultados.setVisible(true);
+				Initial.setEnabled(false);
+				Initial.setVisible(false);
+			}
+		});
+		GridBagConstraints gbc_btnVerResultados = new GridBagConstraints();
+		gbc_btnVerResultados.gridx = 1;
+		gbc_btnVerResultados.gridy = 7;
+		Initial.add(btnVerResultados, gbc_btnVerResultados);
+		
+		JLabel lblNomeDeUsurio = new JLabel("Nome de usuário:");
+		GridBagConstraints gbc_lblNomeDeUsurio = new GridBagConstraints();
+		gbc_lblNomeDeUsurio.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNomeDeUsurio.anchor = GridBagConstraints.EAST;
+		gbc_lblNomeDeUsurio.gridx = 2;
+		gbc_lblNomeDeUsurio.gridy = 4;
+		Login.add(lblNomeDeUsurio, gbc_lblNomeDeUsurio);
+		
+		txtUsurio = new JTextField();
+		txtUsurio.setForeground(Color.BLACK);
+		GridBagConstraints gbc_txtUsurio = new GridBagConstraints();
+		gbc_txtUsurio.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtUsurio.insets = new Insets(0, 0, 5, 0);
+		gbc_txtUsurio.gridx = 3;
+		gbc_txtUsurio.gridy = 4;
+		Login.add(txtUsurio, gbc_txtUsurio);
+		txtUsurio.setColumns(10);
+		
+		JLabel lblUsurio = new JLabel("Usuário: " + basicInfo.currentUser);
+		GridBagConstraints gbc_lblUsurio = new GridBagConstraints();
+		gbc_lblUsurio.insets = new Insets(0, 0, 5, 5);
+		gbc_lblUsurio.gridx = 6;
+		gbc_lblUsurio.gridy = 1;
+		Modulos.add(lblUsurio, gbc_lblUsurio);
+		
+		JLabel lblLogout = new JLabel("Logout");
+		lblLogout.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				Initial.setEnabled(true);
+				Initial.setVisible(true);
+				Modulos.setEnabled(false);
+				Modulos.setVisible(false);
+			}
+		});
+		lblLogout.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+		GridBagConstraints gbc_lblLogout = new GridBagConstraints();
+		gbc_lblLogout.insets = new Insets(0, 0, 5, 5);
+		gbc_lblLogout.gridx = 6;
+		gbc_lblLogout.gridy = 2;
+		Modulos.add(lblLogout, gbc_lblLogout);
+		
+		JButton btnLogin_1 = new JButton("      Login      ");
+		btnLogin_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				basicInfo.loadUsers(FILE_NAME);
+				if (basicInfo.selectUser(txtUsurio.getText())) {
+					Modulos.setEnabled(true);
+					Modulos.setVisible(true);
+					Login.setEnabled(false);
+					Login.setVisible(false);
+					lblUsurio.setText("Usuário: " + basicInfo.currentUser);
+				} else {
+					JOptionPane.showMessageDialog(null, "Nome de usuário inválido: tente novamente.", "Login: usuário inválido", JOptionPane.PLAIN_MESSAGE);
+				}
+			}
+		});
+		GridBagConstraints gbc_btnLogin_1 = new GridBagConstraints();
+		gbc_btnLogin_1.insets = new Insets(0, 0, 5, 0);
+		gbc_btnLogin_1.gridx = 2;
+		gbc_btnLogin_1.gridy = 6;
+		gbc_btnLogin_1.gridwidth = 2;
+		Login.add(btnLogin_1, gbc_btnLogin_1);
+		
+		JButton btnCancelar = new JButton("    Cancelar   ");
+		btnCancelar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Initial.setEnabled(true);
+				Initial.setVisible(true);
+				Login.setEnabled(false);
+				Login.setVisible(false);
+			}
+		});
+		GridBagConstraints gbc_btnCancelar = new GridBagConstraints();
+		gbc_btnCancelar.insets = new Insets(0, 0, 5, 0);
+		gbc_btnCancelar.gridx = 2;
+		gbc_btnCancelar.gridy = 7;
+		gbc_btnCancelar.gridwidth = 2;
+		Login.add(btnCancelar, gbc_btnCancelar);
+		
+		JLabel label = new JLabel("Nome de usuário:");
+		GridBagConstraints gbc_label = new GridBagConstraints();
+		gbc_label.anchor = GridBagConstraints.EAST;
+		gbc_label.insets = new Insets(0, 0, 5, 5);
+		gbc_label.gridx = 2;
+		gbc_label.gridy = 4;
+		CriarUsuario.add(label, gbc_label);
+		
+		textField = new JTextField();
+		textField.setForeground(Color.BLACK);
+		textField.setColumns(10);
+		GridBagConstraints gbc_textField = new GridBagConstraints();
+		gbc_textField.fill = GridBagConstraints.HORIZONTAL;
+		gbc_textField.insets = new Insets(0, 0, 5, 0);
+		gbc_textField.gridx = 3;
+		gbc_textField.gridy = 4;
+		CriarUsuario.add(textField, gbc_textField);
+		
+		JButton button = new JButton("Criar Usuário");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				basicInfo.loadUsers(FILE_NAME);
+				if (basicInfo.createNewUser(textField.getText())) {
+					Modulos.setEnabled(true);
+					Modulos.setVisible(true);
+					CriarUsuario.setEnabled(false);
+					CriarUsuario.setVisible(false);
+					lblUsurio.setText("Usuário: " + basicInfo.currentUser);
+				} else {
+					JOptionPane.showMessageDialog(null, "Nome de usuário inválido: tente novamente.", "Criação de usuário: usuário inválido", JOptionPane.PLAIN_MESSAGE);
+				}
+			}
+		});
+		GridBagConstraints gbc_button = new GridBagConstraints();
+		gbc_button.insets = new Insets(0, 0, 5, 0);
+		gbc_button.gridwidth = 2;
+		gbc_button.gridx = 2;
+		gbc_button.gridy = 6;
+		CriarUsuario.add(button, gbc_button);
+		
+		JButton btnCancelar_1 = new JButton("    Cancelar   ");
+		btnCancelar_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Initial.setEnabled(true);
+				Initial.setVisible(true);
+				CriarUsuario.setEnabled(false);
+				CriarUsuario.setVisible(false);
+			}
+		});
+		GridBagConstraints gbc_btnCancelar_1 = new GridBagConstraints();
+		gbc_btnCancelar_1.insets = new Insets(0, 0, 5, 0);
+		gbc_btnCancelar_1.gridx = 2;
+		gbc_btnCancelar_1.gridy = 7;
+		gbc_btnCancelar_1.gridwidth = 2;
+		CriarUsuario.add(btnCancelar_1, gbc_btnCancelar_1);
+		
+		JButton btnAleatrio = new JButton("     Aleatório     ");
+		btnAleatrio.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				basicInfo.trainingMode = RANDOM_MODE;
+				AleatorioSetup.setEnabled(true);
+				AleatorioSetup.setVisible(true);
+				Modulos.setEnabled(false);
+				Modulos.setVisible(false);
+			}
+		});
+		
+		JLabel lblEscolhaUmDos = new JLabel("Escolha um dos Módulos de Treinamento Abaixo:");
+		lblEscolhaUmDos.setFont(new Font("Lucida Grande", Font.PLAIN, 16));
+		GridBagConstraints gbc_lblEscolhaUmDos = new GridBagConstraints();
+		gbc_lblEscolhaUmDos.insets = new Insets(0, 0, 5, 5);
+		gbc_lblEscolhaUmDos.gridx = 6;
+		gbc_lblEscolhaUmDos.gridy = 4;
+		Modulos.add(lblEscolhaUmDos, gbc_lblEscolhaUmDos);
+		GridBagConstraints gbc_btnAleatrio = new GridBagConstraints();
+		gbc_btnAleatrio.insets = new Insets(0, 0, 5, 5);
+		gbc_btnAleatrio.gridx = 6;
+		gbc_btnAleatrio.gridy = 6;
+		Modulos.add(btnAleatrio, gbc_btnAleatrio);
+		
+		JButton btnGrupo = new JButton("       Grupo       ");
+		btnGrupo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				basicInfo.trainingMode = AGAINST_GROUP_MODE;
+				GrupoSetup.setEnabled(true);
+				GrupoSetup.setVisible(true);
+				Modulos.setEnabled(false);
+				Modulos.setVisible(false);
+			}
+		});
+		GridBagConstraints gbc_btnGrupo = new GridBagConstraints();
+		gbc_btnGrupo.insets = new Insets(0, 0, 5, 5);
+		gbc_btnGrupo.gridx = 6;
+		gbc_btnGrupo.gridy = 8;
+		Modulos.add(btnGrupo, gbc_btnGrupo);
+		
+		JButton btnSequencial = new JButton("   Sequencial   ");
+		btnSequencial.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				basicInfo.trainingMode = SEQUENCE_MODE;
+				SequencialSetup.setEnabled(true);
+				SequencialSetup.setVisible(true);
+				Modulos.setEnabled(false);
+				Modulos.setVisible(false);
+			}
+		});
+		GridBagConstraints gbc_btnSequencial = new GridBagConstraints();
+		gbc_btnSequencial.insets = new Insets(0, 0, 5, 5);
+		gbc_btnSequencial.gridx = 6;
+		gbc_btnSequencial.gridy = 10;
+		Modulos.add(btnSequencial, gbc_btnSequencial);
+		
+		JButton btnConfigurarDispositivos = new JButton("Configurar dispositivos");
+		btnConfigurarDispositivos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				DevicesSetup.setEnabled(true);
+				DevicesSetup.setVisible(true);
+				Modulos.setEnabled(false);
+				Modulos.setVisible(false);
+			}
+		});
+		GridBagConstraints gbc_btnConfigurarDispositivos = new GridBagConstraints();
+		gbc_btnConfigurarDispositivos.insets = new Insets(0, 0, 5, 5);
+		gbc_btnConfigurarDispositivos.gridx = 6;
+		gbc_btnConfigurarDispositivos.gridy = 12;
+		Modulos.add(btnConfigurarDispositivos, gbc_btnConfigurarDispositivos);
+		
+		String[] opcoesDuracaoTreinamento = {"30 segundos", "45 segundos", "1 minuto"};
+		
+		JLabel lblTempo;
+		
+		JLabel lblTreinamentoAleatrio_1 = new JLabel("Treinamento em andamento");
+		lblTreinamentoAleatrio_1.setFont(new Font("Lucida Grande", Font.PLAIN, 30));
+		GridBagConstraints gbc_lblTreinamentoAleatrio_1 = new GridBagConstraints();
+		gbc_lblTreinamentoAleatrio_1.insets = new Insets(0, 0, 5, 0);
+		gbc_lblTreinamentoAleatrio_1.gridx = 1;
+		gbc_lblTreinamentoAleatrio_1.gridy = 1;
+		gbc_lblTreinamentoAleatrio_1.gridwidth = 3;
+		Treinamento.add(lblTreinamentoAleatrio_1, gbc_lblTreinamentoAleatrio_1);
+		
+		JLabel lblTempo_1 = new JLabel("Tempo:");
+		lblTempo_1.setFont(new Font("Lucida Grande", Font.PLAIN, 25));
+		GridBagConstraints gbc_lblTempo_1 = new GridBagConstraints();
+		gbc_lblTempo_1.anchor = GridBagConstraints.EAST;
+		gbc_lblTempo_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblTempo_1.gridx = 1;
+		gbc_lblTempo_1.gridy = 4;
+		Treinamento.add(lblTempo_1, gbc_lblTempo_1);
+		lblTempo = new JLabel(" ");
+		lblTempo.setFont(new Font("Lucida Grande", Font.PLAIN, 25));
+		GridBagConstraints gbc_lblTempo = new GridBagConstraints();
+		gbc_lblTempo.insets = new Insets(0, 0, 5, 5);
+		gbc_lblTempo.gridx = 2;
+		gbc_lblTempo.gridy = 4;
+		Treinamento.add(lblTempo, gbc_lblTempo);
+		
+		JLabel lblTempomin = new JLabel("");
+		lblTempomin.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+		GridBagConstraints gbc_lblTempomin = new GridBagConstraints();
+		gbc_lblTempomin.anchor = GridBagConstraints.WEST;
+		gbc_lblTempomin.insets = new Insets(0, 0, 5, 0);
+		gbc_lblTempomin.gridx = 2;
+		gbc_lblTempomin.gridy = 5;
+		TreinamentoConcluido.add(lblTempomin, gbc_lblTempomin);
+		
+		JLabel lblTempomax = new JLabel("");
+		lblTempomax.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+		GridBagConstraints gbc_lblTempomax = new GridBagConstraints();
+		gbc_lblTempomax.insets = new Insets(0, 0, 5, 0);
+		gbc_lblTempomax.anchor = GridBagConstraints.WEST;
+		gbc_lblTempomax.gridx = 2;
+		gbc_lblTempomax.gridy = 6;
+		TreinamentoConcluido.add(lblTempomax, gbc_lblTempomax);
+		
+		JLabel lblTempomed = new JLabel("");
+		lblTempomed.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+		GridBagConstraints gbc_lblTempomed = new GridBagConstraints();
+		gbc_lblTempomed.anchor = GridBagConstraints.WEST;
+		gbc_lblTempomed.insets = new Insets(0, 0, 5, 0);
+		gbc_lblTempomed.gridx = 2;
+		gbc_lblTempomed.gridy = 7;
+		TreinamentoConcluido.add(lblTempomed, gbc_lblTempomed);
+		
+		JLabel lblTreinamentoAleatrio = new JLabel("Treinamento Aleatório");
+		lblTreinamentoAleatrio.setFont(new Font("Lucida Grande", Font.PLAIN, 30));
+		GridBagConstraints gbc_lblTreinamentoAleatrio = new GridBagConstraints();
+		gbc_lblTreinamentoAleatrio.insets = new Insets(0, 0, 5, 5);
+		gbc_lblTreinamentoAleatrio.gridx = 1;
+		gbc_lblTreinamentoAleatrio.gridy = 0;
+		gbc_lblTreinamentoAleatrio.gridwidth = 3;
+		AleatorioSetup.add(lblTreinamentoAleatrio, gbc_lblTreinamentoAleatrio);
+		
+		JLabel lblDurao = new JLabel("Duração:");
+		GridBagConstraints gbc_lblDurao = new GridBagConstraints();
+		gbc_lblDurao.anchor = GridBagConstraints.EAST;
+		gbc_lblDurao.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDurao.gridx = 1;
+		gbc_lblDurao.gridy = 2;
+		AleatorioSetup.add(lblDurao, gbc_lblDurao);
+		JComboBox duracao = new JComboBox(opcoesDuracaoTreinamento);
+		GridBagConstraints gbc_duracao = new GridBagConstraints();
+		gbc_duracao.insets = new Insets(0, 0, 5, 5);
+		gbc_duracao.gridx = 2;
+		gbc_duracao.gridy = 2;
+		AleatorioSetup.add(duracao, gbc_duracao);
+		
+		JLabel lblEstadoFsico_1 = new JLabel("Estado físico:");
+		GridBagConstraints gbc_lblEstadoFsico_1 = new GridBagConstraints();
+		gbc_lblEstadoFsico_1.anchor = GridBagConstraints.EAST;
+		gbc_lblEstadoFsico_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblEstadoFsico_1.gridx = 1;
+		gbc_lblEstadoFsico_1.gridy = 3;
+		AleatorioSetup.add(lblEstadoFsico_1, gbc_lblEstadoFsico_1);
+		
+		JComboBox comboBox_6 = new JComboBox(physicalConditions);
+		GridBagConstraints gbc_comboBox_6 = new GridBagConstraints();
+		gbc_comboBox_6.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_6.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_6.gridx = 2;
+		gbc_comboBox_6.gridy = 3;
+		AleatorioSetup.add(comboBox_6, gbc_comboBox_6);
+		
+		JLabel lblMembrosDoCorpo = new JLabel("Membros do corpo:");
+		GridBagConstraints gbc_lblMembrosDoCorpo = new GridBagConstraints();
+		gbc_lblMembrosDoCorpo.anchor = GridBagConstraints.EAST;
+		gbc_lblMembrosDoCorpo.insets = new Insets(0, 0, 5, 5);
+		gbc_lblMembrosDoCorpo.gridx = 1;
+		gbc_lblMembrosDoCorpo.gridy = 4;
+		AleatorioSetup.add(lblMembrosDoCorpo, gbc_lblMembrosDoCorpo);
+		
+		JComboBox comboBox_7 = new JComboBox(limbs);
+		GridBagConstraints gbc_comboBox_7 = new GridBagConstraints();
+		gbc_comboBox_7.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_7.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_7.gridx = 2;
+		gbc_comboBox_7.gridy = 4;
+		AleatorioSetup.add(comboBox_7, gbc_comboBox_7);
+		
+		JLabel lblLadoDoCorpo = new JLabel("Lado do corpo:");
+		GridBagConstraints gbc_lblLadoDoCorpo = new GridBagConstraints();
+		gbc_lblLadoDoCorpo.anchor = GridBagConstraints.EAST;
+		gbc_lblLadoDoCorpo.insets = new Insets(0, 0, 5, 5);
+		gbc_lblLadoDoCorpo.gridx = 1;
+		gbc_lblLadoDoCorpo.gridy = 5;
+		AleatorioSetup.add(lblLadoDoCorpo, gbc_lblLadoDoCorpo);
+		
+		JComboBox comboBox_8 = new JComboBox(sides);
+		GridBagConstraints gbc_comboBox_8 = new GridBagConstraints();
+		gbc_comboBox_8.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_8.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_8.gridx = 2;
+		gbc_comboBox_8.gridy = 5;
+		AleatorioSetup.add(comboBox_8, gbc_comboBox_8);
+		
+		JLabel lblDistnciasEntreDispositivos = new JLabel("Distâncias entre dispositivos:");
+		GridBagConstraints gbc_lblDistnciasEntreDispositivos = new GridBagConstraints();
+		gbc_lblDistnciasEntreDispositivos.anchor = GridBagConstraints.EAST;
+		gbc_lblDistnciasEntreDispositivos.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDistnciasEntreDispositivos.gridx = 1;
+		gbc_lblDistnciasEntreDispositivos.gridy = 6;
+		AleatorioSetup.add(lblDistnciasEntreDispositivos, gbc_lblDistnciasEntreDispositivos);
+		
+		JComboBox comboBox_9 = new JComboBox(distances);
+		GridBagConstraints gbc_comboBox_9 = new GridBagConstraints();
+		gbc_comboBox_9.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_9.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_9.gridx = 2;
+		gbc_comboBox_9.gridy = 6;
+		AleatorioSetup.add(comboBox_9, gbc_comboBox_9);
+		
+		
+		JButton btnIniciar = new JButton("      Iniciar      ");
+		btnIniciar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String durationSelected = (String) duracao.getSelectedItem();
+				if (durationSelected == "30 segundos") {
+					duracaoTreinamento = 30;
+				} else if (durationSelected == "45 segundos") {
+					duracaoTreinamento = 45;
+				} else {
+					duracaoTreinamento = 60;
+				}
+				
+				String physicalConditionSelected = (String) comboBox_6.getSelectedItem();
+				String limbSelected = (String) comboBox_7.getSelectedItem();
+				String sideSelected = (String) comboBox_8.getSelectedItem();
+				String distancesSelected = (String) comboBox_9.getSelectedItem();
+				basicInfo.physicalCondition = basicInfo.getPhysicalConditionNum(physicalConditionSelected);
+				basicInfo.limb = basicInfo.getLimbNum(limbSelected);
+				basicInfo.side = basicInfo.getSideNum(sideSelected);
+				basicInfo.distance = basicInfo.getDistanceNum(distancesSelected);
+				
+				RandomTraining randomTraining = new RandomTraining(ca);
+				randomTraining.numConnections = ca.numConnections();
+				
+				if (randomTraining.numConnections > 0) {
+					randomTraining.generateRandomLedNum();
+					randomTraining.turnLedOn(ca);
+					
+					countDown = duracaoTreinamento;
+					timer = new Timer();
+					timer.scheduleAtFixedRate(new TimerTask() {
+						public void run() {
+													
+							if (ca.dataAvailable()) {
+								randomTraining.addTime(ca, basicInfo);
+								randomTraining.generateRandomLedNum();
+								randomTraining.turnLedOn(ca);
+							}
+							
+							if (countDown == 1) {
+								pararTreinamento = true;
+								TreinamentoConcluido.setEnabled(true);
+						    	TreinamentoConcluido.setVisible(true);
+								Treinamento.setEnabled(false);
+								Treinamento.setVisible(false);
+							}
+							if (pararTreinamento) {	
+						        timer.cancel();
+						    	closeTraining(randomTraining, ca);
+						    	lblTempomin.setText(Long.toString(randomTraining.time[0][1]));
+						    	lblTempomax.setText(Long.toString(randomTraining.time[0][2]));
+						    	lblTempomed.setText(Long.toString(randomTraining.time[0][0]));
+						    	basicInfo.time = randomTraining.time;
+								pararTreinamento = false;
+						    }
+						    countDown--;
+							
+							lblTempo.setText(Integer.toString(countDown));
+						}
+					} , DELAY, PERIOD);
+					
+					Treinamento.setEnabled(true);
+					Treinamento.setVisible(true);
+					AleatorioSetup.setEnabled(false);
+					AleatorioSetup.setVisible(false);
+				} else {
+					JOptionPane.showMessageDialog(null, "Não há dispositivos conectados a este computador.", "Dispositivos não conectados", JOptionPane.PLAIN_MESSAGE);
+				}
+				
+			}
+		});
+		
+		GridBagConstraints gbc_btnIniciar = new GridBagConstraints();
+		gbc_btnIniciar.anchor = GridBagConstraints.NORTH;
+		gbc_btnIniciar.insets = new Insets(0, 0, 5, 5);
+		gbc_btnIniciar.gridx = 2;
+		gbc_btnIniciar.gridy = 8;
+		AleatorioSetup.add(btnIniciar, gbc_btnIniciar);
+		
+		JButton btnCancelar_3 = new JButton("    Cancelar    ");
+		btnCancelar_3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Modulos.setEnabled(true);
+				Modulos.setVisible(true);
+				AleatorioSetup.setEnabled(false);
+				AleatorioSetup.setVisible(false);
+			}
+		});
+		GridBagConstraints gbc_btnCancelar_3 = new GridBagConstraints();
+		gbc_btnCancelar_3.insets = new Insets(0, 0, 5, 5);
+		gbc_btnCancelar_3.gridx = 2;
+		gbc_btnCancelar_3.gridy = 9;
+		AleatorioSetup.add(btnCancelar_3, gbc_btnCancelar_3);
+		
+		JLabel lblSegundos = new JLabel("segundos");
+		lblSegundos.setFont(new Font("Lucida Grande", Font.PLAIN, 25));
+		GridBagConstraints gbc_lblSegundos = new GridBagConstraints();
+		gbc_lblSegundos.anchor = GridBagConstraints.WEST;
+		gbc_lblSegundos.insets = new Insets(0, 0, 5, 0);
+		gbc_lblSegundos.gridx = 3;
+		gbc_lblSegundos.gridy = 4;
+		Treinamento.add(lblSegundos, gbc_lblSegundos);
+		
+		JButton btnParar = new JButton("        Parar        ");
+		btnParar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pararTreinamento = true;
+		    	TreinamentoConcluido.setEnabled(true);
+		    	TreinamentoConcluido.setVisible(true);
+				Treinamento.setEnabled(false);
+				Treinamento.setVisible(false);
+			}
+		});
+		GridBagConstraints gbc_btnParar = new GridBagConstraints();
+		gbc_btnParar.insets = new Insets(0, 0, 0, 5);
+		gbc_btnParar.gridx = 2;
+		gbc_btnParar.gridy = 6;
+		Treinamento.add(btnParar, gbc_btnParar);
+		
+		JLabel lblTreinamentoGrupo = new JLabel("Treinamento Grupo");
+		lblTreinamentoGrupo.setFont(new Font("Lucida Grande", Font.PLAIN, 30));
+		GridBagConstraints gbc_lblTreinamentoGrupo = new GridBagConstraints();
+		gbc_lblTreinamentoGrupo.insets = new Insets(0, 0, 5, 0);
+		gbc_lblTreinamentoGrupo.gridx = 0;
+		gbc_lblTreinamentoGrupo.gridy = 1;
+		gbc_lblTreinamentoGrupo.gridwidth = 3;
+		GrupoSetup.add(lblTreinamentoGrupo, gbc_lblTreinamentoGrupo);
+		
+		JLabel lblDurao_1 = new JLabel("Duração:");
+		GridBagConstraints gbc_lblDurao_1 = new GridBagConstraints();
+		gbc_lblDurao_1.anchor = GridBagConstraints.EAST;
+		gbc_lblDurao_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDurao_1.gridx = 0;
+		gbc_lblDurao_1.gridy = 3;
+		GrupoSetup.add(lblDurao_1, gbc_lblDurao_1);
+		
+		JComboBox duracao_1 = new JComboBox(opcoesDuracaoTreinamento);
+		GridBagConstraints gbc_duracao_1 = new GridBagConstraints();
+		gbc_duracao_1.insets = new Insets(0, 0, 5, 5);
+		gbc_duracao_1.gridx = 1;
+		gbc_duracao_1.gridy = 3;
+		GrupoSetup.add(duracao_1, gbc_duracao_1);
+		
+		String[] quantidadeGrupo = {"2 dispositivos", "3 dispositivos", "4 dispositivos", "Dinâmico"};
+		
+		JLabel lblQuantidade = new JLabel("Quantidade:");
+		GridBagConstraints gbc_lblQuantidade = new GridBagConstraints();
+		gbc_lblQuantidade.anchor = GridBagConstraints.EAST;
+		gbc_lblQuantidade.insets = new Insets(0, 0, 5, 5);
+		gbc_lblQuantidade.gridx = 0;
+		gbc_lblQuantidade.gridy = 4;
+		GrupoSetup.add(lblQuantidade, gbc_lblQuantidade);
+		JComboBox quantidade = new JComboBox(quantidadeGrupo);
+		GridBagConstraints gbc_quantidade = new GridBagConstraints();
+		gbc_quantidade.insets = new Insets(0, 0, 5, 5);
+		gbc_quantidade.gridx = 1;
+		gbc_quantidade.gridy = 4;
+		GrupoSetup.add(quantidade, gbc_quantidade);
+		
+		JLabel lblEstadoFsico_2 = new JLabel("Estado físico:");
+		GridBagConstraints gbc_lblEstadoFsico_2 = new GridBagConstraints();
+		gbc_lblEstadoFsico_2.anchor = GridBagConstraints.EAST;
+		gbc_lblEstadoFsico_2.insets = new Insets(0, 0, 5, 5);
+		gbc_lblEstadoFsico_2.gridx = 0;
+		gbc_lblEstadoFsico_2.gridy = 5;
+		GrupoSetup.add(lblEstadoFsico_2, gbc_lblEstadoFsico_2);
+		
+		JComboBox comboBox_10 = new JComboBox(physicalConditions);
+		GridBagConstraints gbc_comboBox_10 = new GridBagConstraints();
+		gbc_comboBox_10.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_10.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_10.gridx = 1;
+		gbc_comboBox_10.gridy = 5;
+		GrupoSetup.add(comboBox_10, gbc_comboBox_10);
+		
+		JLabel lblMembrosDoCorpo_1 = new JLabel("Membros do corpo:");
+		GridBagConstraints gbc_lblMembrosDoCorpo_1 = new GridBagConstraints();
+		gbc_lblMembrosDoCorpo_1.anchor = GridBagConstraints.EAST;
+		gbc_lblMembrosDoCorpo_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblMembrosDoCorpo_1.gridx = 0;
+		gbc_lblMembrosDoCorpo_1.gridy = 6;
+		GrupoSetup.add(lblMembrosDoCorpo_1, gbc_lblMembrosDoCorpo_1);
+		
+		JComboBox comboBox_11 = new JComboBox(limbs);
+		GridBagConstraints gbc_comboBox_11 = new GridBagConstraints();
+		gbc_comboBox_11.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_11.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_11.gridx = 1;
+		gbc_comboBox_11.gridy = 6;
+		GrupoSetup.add(comboBox_11, gbc_comboBox_11);
+		
+		JLabel lblLadoDoCorpo_1 = new JLabel("Lado do corpo:");
+		GridBagConstraints gbc_lblLadoDoCorpo_1 = new GridBagConstraints();
+		gbc_lblLadoDoCorpo_1.anchor = GridBagConstraints.EAST;
+		gbc_lblLadoDoCorpo_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblLadoDoCorpo_1.gridx = 0;
+		gbc_lblLadoDoCorpo_1.gridy = 7;
+		GrupoSetup.add(lblLadoDoCorpo_1, gbc_lblLadoDoCorpo_1);
+		
+		JComboBox comboBox_12 = new JComboBox(sides);
+		GridBagConstraints gbc_comboBox_12 = new GridBagConstraints();
+		gbc_comboBox_12.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_12.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_12.gridx = 1;
+		gbc_comboBox_12.gridy = 7;
+		GrupoSetup.add(comboBox_12, gbc_comboBox_12);
+		
+		JLabel lblDistnciasEntreDispositivos_1 = new JLabel("Distâncias entre dispositivos:");
+		GridBagConstraints gbc_lblDistnciasEntreDispositivos_1 = new GridBagConstraints();
+		gbc_lblDistnciasEntreDispositivos_1.anchor = GridBagConstraints.EAST;
+		gbc_lblDistnciasEntreDispositivos_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDistnciasEntreDispositivos_1.gridx = 0;
+		gbc_lblDistnciasEntreDispositivos_1.gridy = 8;
+		GrupoSetup.add(lblDistnciasEntreDispositivos_1, gbc_lblDistnciasEntreDispositivos_1);
+		
+		JComboBox comboBox_13 = new JComboBox(distances);
+		GridBagConstraints gbc_comboBox_13 = new GridBagConstraints();
+		gbc_comboBox_13.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_13.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_13.gridx = 1;
+		gbc_comboBox_13.gridy = 8;
+		GrupoSetup.add(comboBox_13, gbc_comboBox_13);
+		
+		JButton btnIniciar_1 = new JButton("      Iniciar      ");
+		btnIniciar_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String durationSelected = (String) duracao_1.getSelectedItem();
+				if (durationSelected == "30 segundos") {
+					duracaoTreinamento = 30;
+				} else if (durationSelected == "45 segundos") {
+					duracaoTreinamento = 45;
+				} else {
+					duracaoTreinamento = 60;
+				}
+				
+				String physicalConditionSelected = (String) comboBox_10.getSelectedItem();
+				String limbSelected = (String) comboBox_11.getSelectedItem();
+				String sideSelected = (String) comboBox_12.getSelectedItem();
+				String distancesSelected = (String) comboBox_13.getSelectedItem();
+				basicInfo.physicalCondition = basicInfo.getPhysicalConditionNum(physicalConditionSelected);
+				basicInfo.limb = basicInfo.getLimbNum(limbSelected);
+				basicInfo.side = basicInfo.getSideNum(sideSelected);
+				basicInfo.distance = basicInfo.getDistanceNum(distancesSelected);
+				
+				AgainstGroupTraining againstGroupTraining = new AgainstGroupTraining(ca);
+				againstGroupTraining.numConnections = ca.numConnections();
+				
+				if (againstGroupTraining.numConnections > 0) {
+					boolean numDispositivosValido = false;
+					
+					String quantitySelected = (String) quantidade.getSelectedItem();
+					if (quantitySelected == "2 dispositivos") {
+						if (againstGroupTraining.numConnections >= 2) {
+							againstGroupTraining.setGroupSize(2);
+							numDispositivosValido = true;
+						}
+					} else if (quantitySelected == "3 dispositivos") {
+						if (againstGroupTraining.numConnections >= 3) {
+							againstGroupTraining.setGroupSize(3);
+							numDispositivosValido = true;
+						}
+					} else if (quantitySelected == "4 dispositivos") {
+						if (againstGroupTraining.numConnections >= 4) {
+							againstGroupTraining.setGroupSize(4);
+							numDispositivosValido = true;
+						}
+					} else {
+						againstGroupTraining.setGroupSize();
+						numDispositivosValido = true;
+					}
+					
+					if (numDispositivosValido) {
+					
+						againstGroupTraining.turnLedsOn(againstGroupTraining.generateLedsNum(), ca);
+						
+						countDown = duracaoTreinamento;
+						timer = new Timer();
+						timer.scheduleAtFixedRate(new TimerTask() {
+							public void run() {
+								
+								if (ca.numInputsRead() >= againstGroupTraining.groupSize) {
+									againstGroupTraining.addTime(ca, basicInfo);
+									againstGroupTraining.turnLedsOn(againstGroupTraining.generateLedsNum(), ca);
+								}
+								
+								if (countDown == 1) {
+									pararTreinamento = true;
+									TreinamentoConcluido.setEnabled(true);
+							    	TreinamentoConcluido.setVisible(true);
+									Treinamento.setEnabled(false);
+									Treinamento.setVisible(false);
+								}
+								if (pararTreinamento) {
+							        timer.cancel();
+							    	closeTraining(againstGroupTraining, ca);
+							    	lblTempomin.setText(Long.toString(againstGroupTraining.time[0][1]));
+							    	lblTempomax.setText(Long.toString(againstGroupTraining.time[0][2]));
+							    	lblTempomed.setText(Long.toString(againstGroupTraining.time[0][0]));
+							    	basicInfo.time = againstGroupTraining.time;
+									pararTreinamento = false;
+							    }
+							    countDown--;								
+								lblTempo.setText(Integer.toString(countDown));
+							}
+						} , DELAY, PERIOD);
+						
+						Treinamento.setEnabled(true);
+						Treinamento.setVisible(true);
+						GrupoSetup.setEnabled(false);
+						GrupoSetup.setVisible(false);
+						
+					} else {
+						JOptionPane.showMessageDialog(null, "Quantidade de dispositivos inválida: tente novamente.", "Quantidade inválida", JOptionPane.PLAIN_MESSAGE);
+					}
+				} else {
+					JOptionPane.showMessageDialog(null, "Não há dispositivos conectados a este computador.", "Dispositivos não conectados", JOptionPane.PLAIN_MESSAGE);
+				}
+			}
+		});
+		
+		GridBagConstraints gbc_btnIniciar_1 = new GridBagConstraints();
+		gbc_btnIniciar_1.insets = new Insets(0, 0, 5, 5);
+		gbc_btnIniciar_1.gridx = 1;
+		gbc_btnIniciar_1.gridy = 10;
+		GrupoSetup.add(btnIniciar_1, gbc_btnIniciar_1);
+		
+		JButton btnCancelar_4 = new JButton("    Cancelar    ");
+		btnCancelar_4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Modulos.setEnabled(true);
+				Modulos.setVisible(true);
+				GrupoSetup.setEnabled(false);
+				GrupoSetup.setVisible(false);
+			}
+		});
+		GridBagConstraints gbc_btnCancelar_4 = new GridBagConstraints();
+		gbc_btnCancelar_4.insets = new Insets(0, 0, 0, 5);
+		gbc_btnCancelar_4.gridx = 1;
+		gbc_btnCancelar_4.gridy = 11;
+		GrupoSetup.add(btnCancelar_4, gbc_btnCancelar_4);
+		
+		JLabel lblTreinamentoSequencial = new JLabel("Treinamento Sequencial");
+		lblTreinamentoSequencial.setFont(new Font("Lucida Grande", Font.PLAIN, 30));
+		GridBagConstraints gbc_lblTreinamentoSequencial = new GridBagConstraints();
+		gbc_lblTreinamentoSequencial.insets = new Insets(0, 0, 5, 5);
+		gbc_lblTreinamentoSequencial.gridx = 1;
+		gbc_lblTreinamentoSequencial.gridy = 0;
+		gbc_lblTreinamentoSequencial.gridwidth = 3;
+		SequencialSetup.add(lblTreinamentoSequencial, gbc_lblTreinamentoSequencial);
+		
+		JLabel lblDurao_2 = new JLabel("Duração:");
+		GridBagConstraints gbc_lblDurao_2 = new GridBagConstraints();
+		gbc_lblDurao_2.anchor = GridBagConstraints.EAST;
+		gbc_lblDurao_2.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDurao_2.gridx = 1;
+		gbc_lblDurao_2.gridy = 2;
+		SequencialSetup.add(lblDurao_2, gbc_lblDurao_2);
+		
+		JComboBox duracao_2 = new JComboBox(opcoesDuracaoTreinamento);
+		GridBagConstraints gbc_duracao_2 = new GridBagConstraints();
+		gbc_duracao_2.insets = new Insets(0, 0, 5, 5);
+		gbc_duracao_2.gridx = 2;
+		gbc_duracao_2.gridy = 2;
+		SequencialSetup.add(duracao_2, gbc_duracao_2);
+		
+		JLabel lblEstadoFsico_3 = new JLabel("Estado físico:");
+		GridBagConstraints gbc_lblEstadoFsico_3 = new GridBagConstraints();
+		gbc_lblEstadoFsico_3.anchor = GridBagConstraints.EAST;
+		gbc_lblEstadoFsico_3.insets = new Insets(0, 0, 5, 5);
+		gbc_lblEstadoFsico_3.gridx = 1;
+		gbc_lblEstadoFsico_3.gridy = 3;
+		SequencialSetup.add(lblEstadoFsico_3, gbc_lblEstadoFsico_3);
+		
+		JComboBox comboBox_14 = new JComboBox(physicalConditions);
+		GridBagConstraints gbc_comboBox_14 = new GridBagConstraints();
+		gbc_comboBox_14.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_14.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_14.gridx = 2;
+		gbc_comboBox_14.gridy = 3;
+		SequencialSetup.add(comboBox_14, gbc_comboBox_14);
+		
+		JLabel lblMembrosDoCorpo_2 = new JLabel("Membros do corpo:");
+		GridBagConstraints gbc_lblMembrosDoCorpo_2 = new GridBagConstraints();
+		gbc_lblMembrosDoCorpo_2.anchor = GridBagConstraints.EAST;
+		gbc_lblMembrosDoCorpo_2.insets = new Insets(0, 0, 5, 5);
+		gbc_lblMembrosDoCorpo_2.gridx = 1;
+		gbc_lblMembrosDoCorpo_2.gridy = 4;
+		SequencialSetup.add(lblMembrosDoCorpo_2, gbc_lblMembrosDoCorpo_2);
+		
+		JComboBox comboBox_15 = new JComboBox(limbs);
+		GridBagConstraints gbc_comboBox_15 = new GridBagConstraints();
+		gbc_comboBox_15.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_15.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_15.gridx = 2;
+		gbc_comboBox_15.gridy = 4;
+		SequencialSetup.add(comboBox_15, gbc_comboBox_15);
+		
+		JLabel lblLadoDoCorpo_2 = new JLabel("Lado do corpo:");
+		GridBagConstraints gbc_lblLadoDoCorpo_2 = new GridBagConstraints();
+		gbc_lblLadoDoCorpo_2.anchor = GridBagConstraints.EAST;
+		gbc_lblLadoDoCorpo_2.insets = new Insets(0, 0, 5, 5);
+		gbc_lblLadoDoCorpo_2.gridx = 1;
+		gbc_lblLadoDoCorpo_2.gridy = 5;
+		SequencialSetup.add(lblLadoDoCorpo_2, gbc_lblLadoDoCorpo_2);
+		
+		JComboBox comboBox_16 = new JComboBox(sides);
+		GridBagConstraints gbc_comboBox_16 = new GridBagConstraints();
+		gbc_comboBox_16.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_16.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_16.gridx = 2;
+		gbc_comboBox_16.gridy = 5;
+		SequencialSetup.add(comboBox_16, gbc_comboBox_16);
+		
+		JLabel lblDistnciasEntreDispositivos_2 = new JLabel("Distâncias entre dispositivos:");
+		GridBagConstraints gbc_lblDistnciasEntreDispositivos_2 = new GridBagConstraints();
+		gbc_lblDistnciasEntreDispositivos_2.anchor = GridBagConstraints.EAST;
+		gbc_lblDistnciasEntreDispositivos_2.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDistnciasEntreDispositivos_2.gridx = 1;
+		gbc_lblDistnciasEntreDispositivos_2.gridy = 6;
+		SequencialSetup.add(lblDistnciasEntreDispositivos_2, gbc_lblDistnciasEntreDispositivos_2);
+		
+		JComboBox comboBox_17 = new JComboBox(distances);
+		GridBagConstraints gbc_comboBox_17 = new GridBagConstraints();
+		gbc_comboBox_17.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_17.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_17.gridx = 2;
+		gbc_comboBox_17.gridy = 6;
+		SequencialSetup.add(comboBox_17, gbc_comboBox_17);
+		
+		JButton btnCancelar_5 = new JButton("    Cancelar    ");
+		btnCancelar_5.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Modulos.setEnabled(true);
+				Modulos.setVisible(true);
+				SequencialSetup.setEnabled(false);
+				SequencialSetup.setVisible(false);
+			}
+		});
+		
+		JButton btnIniciar_2 = new JButton("      Iniciar      ");
+		btnIniciar_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String durationSelected = (String) duracao_2.getSelectedItem();
+				if (durationSelected == "30 segundos") {
+					duracaoTreinamento = 30;
+				} else if (durationSelected == "45 segundos") {
+					duracaoTreinamento = 45;
+				} else {
+					duracaoTreinamento = 60;
+				}
+				
+				String physicalConditionSelected = (String) comboBox_14.getSelectedItem();
+				String limbSelected = (String) comboBox_15.getSelectedItem();
+				String sideSelected = (String) comboBox_16.getSelectedItem();
+				String distancesSelected = (String) comboBox_17.getSelectedItem();
+				basicInfo.physicalCondition = basicInfo.getPhysicalConditionNum(physicalConditionSelected);
+				basicInfo.limb = basicInfo.getLimbNum(limbSelected);
+				basicInfo.side = basicInfo.getSideNum(sideSelected);
+				basicInfo.distance = basicInfo.getDistanceNum(distancesSelected);
+				
+				SequenceTraining sequenceTraining = new SequenceTraining(ca);
+				sequenceTraining.numConnections = ca.numConnections();
+				
+				if (sequenceTraining.numConnections > 0) {
+					sequenceTraining.turnLedOn(ca);
+					
+					countDown = duracaoTreinamento;
+					timer = new Timer();
+					timer.scheduleAtFixedRate(new TimerTask() {
+						public void run() {
+							
+							if (sequenceTraining.reset) {
+								sequenceTraining.resetLedNum(ca);
+								sequenceTraining.reset = false;
+							}
+							
+							if (sequenceTraining.isLedOn(ca)) {
+								sequenceTraining.turnLedOff(ca);
+								sequenceTraining.nextLed(ca);
+							} else {
+								sequenceTraining.addTime(ca, basicInfo);
+							}
+							
+							sequenceTraining.turnLedOn(ca);
+							
+							if (countDown == 1) {
+								pararTreinamento = true;
+								TreinamentoConcluido.setEnabled(true);
+						    	TreinamentoConcluido.setVisible(true);
+								Treinamento.setEnabled(false);
+								Treinamento.setVisible(false);
+							}
+							if (pararTreinamento) {
+						        timer.cancel();
+						    	closeTraining(sequenceTraining, ca);
+						    	lblTempomin.setText(Long.toString(sequenceTraining.time[0][1]));
+						    	lblTempomax.setText(Long.toString(sequenceTraining.time[0][2]));
+						    	lblTempomed.setText(Long.toString(sequenceTraining.time[0][0]));
+						    	basicInfo.time = sequenceTraining.time;
+								pararTreinamento = false;
+						    }
+						    countDown--;
+							lblTempo.setText(Integer.toString(countDown));
+						}
+					} , DELAY, PERIOD);
+					Treinamento.setEnabled(true);
+					Treinamento.setVisible(true);
+					SequencialSetup.setEnabled(false);
+					SequencialSetup.setVisible(false);
+				} else {
+					JOptionPane.showMessageDialog(null, "Não há dispositivos conectados a este computador.", "Dispositivos não conectados", JOptionPane.PLAIN_MESSAGE);
+				}
+			}
+		});
+		
+		GridBagConstraints gbc_btnIniciar_2 = new GridBagConstraints();
+		gbc_btnIniciar_2.insets = new Insets(0, 0, 5, 5);
+		gbc_btnIniciar_2.gridx = 2;
+		gbc_btnIniciar_2.gridy = 8;
+		SequencialSetup.add(btnIniciar_2, gbc_btnIniciar_2);
+		GridBagConstraints gbc_btnCancelar_5 = new GridBagConstraints();
+		gbc_btnCancelar_5.insets = new Insets(0, 0, 0, 5);
+		gbc_btnCancelar_5.gridx = 2;
+		gbc_btnCancelar_5.gridy = 9;
+		SequencialSetup.add(btnCancelar_5, gbc_btnCancelar_5);
+		
+		JLabel lblTreinamentoConcludo = new JLabel("Treinamento Concluído");
+		lblTreinamentoConcludo.setFont(new Font("Lucida Grande", Font.PLAIN, 30));
+		GridBagConstraints gbc_lblTreinamentoConcludo = new GridBagConstraints();
+		gbc_lblTreinamentoConcludo.insets = new Insets(0, 0, 5, 5);
+		gbc_lblTreinamentoConcludo.gridx = 1;
+		gbc_lblTreinamentoConcludo.gridy = 1;
+		gbc_lblTreinamentoConcludo.gridwidth = 2;
+		TreinamentoConcluido.add(lblTreinamentoConcludo, gbc_lblTreinamentoConcludo);
+		
+		JLabel lblResultados = new JLabel("Resultados");
+		lblResultados.setFont(new Font("Lucida Grande", Font.PLAIN, 25));
+		GridBagConstraints gbc_lblResultados = new GridBagConstraints();
+		gbc_lblResultados.insets = new Insets(0, 0, 5, 5);
+		gbc_lblResultados.gridx = 1;
+		gbc_lblResultados.gridy = 3;
+		gbc_lblResultados.gridwidth = 2;
+		TreinamentoConcluido.add(lblResultados, gbc_lblResultados);
+		
+		JLabel lblMenorTempo = new JLabel("Menor tempo: ");
+		lblMenorTempo.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+		GridBagConstraints gbc_lblMenorTempo = new GridBagConstraints();
+		gbc_lblMenorTempo.anchor = GridBagConstraints.EAST;
+		gbc_lblMenorTempo.insets = new Insets(0, 0, 5, 5);
+		gbc_lblMenorTempo.gridx = 1;
+		gbc_lblMenorTempo.gridy = 5;
+		TreinamentoConcluido.add(lblMenorTempo, gbc_lblMenorTempo);
+		
+		JLabel lblMaiorTempo = new JLabel("Maior tempo: ");
+		lblMaiorTempo.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+		GridBagConstraints gbc_lblMaiorTempo = new GridBagConstraints();
+		gbc_lblMaiorTempo.anchor = GridBagConstraints.EAST;
+		gbc_lblMaiorTempo.insets = new Insets(0, 0, 5, 5);
+		gbc_lblMaiorTempo.gridx = 1;
+		gbc_lblMaiorTempo.gridy = 6;
+		TreinamentoConcluido.add(lblMaiorTempo, gbc_lblMaiorTempo);
+		
+		JLabel lblTempoMdio = new JLabel("Tempo médio: ");
+		lblTempoMdio.setFont(new Font("Lucida Grande", Font.PLAIN, 18));
+		GridBagConstraints gbc_lblTempoMdio = new GridBagConstraints();
+		gbc_lblTempoMdio.insets = new Insets(0, 0, 5, 5);
+		gbc_lblTempoMdio.anchor = GridBagConstraints.EAST;
+		gbc_lblTempoMdio.gridx = 1;
+		gbc_lblTempoMdio.gridy = 7;
+		TreinamentoConcluido.add(lblTempoMdio, gbc_lblTempoMdio);
+		
+		JLabel lblDesejaSalvarOs = new JLabel("Deseja salvar os resultados?");
+		lblDesejaSalvarOs.setFont(new Font("Lucida Grande", Font.PLAIN, 25));
+		GridBagConstraints gbc_lblDesejaSalvarOs = new GridBagConstraints();
+		gbc_lblDesejaSalvarOs.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDesejaSalvarOs.gridx = 1;
+		gbc_lblDesejaSalvarOs.gridy = 9;
+		gbc_lblDesejaSalvarOs.gridwidth = 2;
+		TreinamentoConcluido.add(lblDesejaSalvarOs, gbc_lblDesejaSalvarOs);
+		
+		JButton btnSim = new JButton("        Sim        ");
+		btnSim.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				basicInfo.saveResult(FILE_NAME);
+				JOptionPane.showMessageDialog(null, "Resultados salvos com sucesso.", "Resultados salvos", JOptionPane.PLAIN_MESSAGE);
+				Modulos.setEnabled(true);
+				Modulos.setVisible(true);
+				TreinamentoConcluido.setEnabled(false);
+				TreinamentoConcluido.setVisible(false);
+			}
+		});
+		GridBagConstraints gbc_btnSim = new GridBagConstraints();
+		gbc_btnSim.insets = new Insets(0, 0, 0, 5);
+		gbc_btnSim.gridx = 1;
+		gbc_btnSim.gridy = 11;
+		TreinamentoConcluido.add(btnSim, gbc_btnSim);
+		
+		JButton btnNo = new JButton("        Não        ");
+		btnNo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Modulos.setEnabled(true);
+				Modulos.setVisible(true);
+				TreinamentoConcluido.setEnabled(false);
+				TreinamentoConcluido.setVisible(false);
+			}
+		});
+		GridBagConstraints gbc_btnNo = new GridBagConstraints();
+		gbc_btnNo.gridx = 2;
+		gbc_btnNo.gridy = 11;
+		TreinamentoConcluido.add(btnNo, gbc_btnNo);
+		
+		JLabel lblDefinaAPosio = new JLabel("Defina a Posição dos Dispositivos:");
+		lblDefinaAPosio.setFont(new Font("Lucida Grande", Font.PLAIN, 26));
+		GridBagConstraints gbc_lblDefinaAPosio = new GridBagConstraints();
+		gbc_lblDefinaAPosio.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDefinaAPosio.gridx = 1;
+		gbc_lblDefinaAPosio.gridy = 0;
+		gbc_lblDefinaAPosio.gridwidth = 3;
+		DevicesSetup.add(lblDefinaAPosio, gbc_lblDefinaAPosio);
+		
+		JLabel lblAltura = new JLabel("Altura");
+		GridBagConstraints gbc_lblAltura = new GridBagConstraints();
+		gbc_lblAltura.insets = new Insets(0, 0, 5, 5);
+		gbc_lblAltura.gridx = 2;
+		gbc_lblAltura.gridy = 2;
+		DevicesSetup.add(lblAltura, gbc_lblAltura);
+		
+		JLabel lblLado_1 = new JLabel("Lado");
+		GridBagConstraints gbc_lblLado_1 = new GridBagConstraints();
+		gbc_lblLado_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblLado_1.gridx = 3;
+		gbc_lblLado_1.gridy = 2;
+		DevicesSetup.add(lblLado_1, gbc_lblLado_1);
+		
+		JLabel lblDispositivo = new JLabel("Dispositivo 1:");
+		GridBagConstraints gbc_lblDispositivo = new GridBagConstraints();
+		gbc_lblDispositivo.anchor = GridBagConstraints.EAST;
+		gbc_lblDispositivo.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDispositivo.gridx = 1;
+		gbc_lblDispositivo.gridy = 4;
+		DevicesSetup.add(lblDispositivo, gbc_lblDispositivo);
+		
+		String[] altura = {"Alto", "Baixo"};
+		String[] lado = {"Direito", "Esquerdo"};
+		
+		JComboBox comboBox_18 = new JComboBox(altura);
+		GridBagConstraints gbc_comboBox_18 = new GridBagConstraints();
+		gbc_comboBox_18.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_18.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_18.gridx = 2;
+		gbc_comboBox_18.gridy = 4;
+		DevicesSetup.add(comboBox_18, gbc_comboBox_18);
+		
+		JComboBox comboBox_25 = new JComboBox(lado);
+		GridBagConstraints gbc_comboBox_25 = new GridBagConstraints();
+		gbc_comboBox_25.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_25.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_25.gridx = 3;
+		gbc_comboBox_25.gridy = 4;
+		DevicesSetup.add(comboBox_25, gbc_comboBox_25);
+		
+		JLabel lblDispositivo_1 = new JLabel("Dispositivo 2:");
+		GridBagConstraints gbc_lblDispositivo_1 = new GridBagConstraints();
+		gbc_lblDispositivo_1.anchor = GridBagConstraints.EAST;
+		gbc_lblDispositivo_1.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDispositivo_1.gridx = 1;
+		gbc_lblDispositivo_1.gridy = 5;
+		DevicesSetup.add(lblDispositivo_1, gbc_lblDispositivo_1);
+		
+		JComboBox comboBox_19 = new JComboBox(altura);
+		GridBagConstraints gbc_comboBox_19 = new GridBagConstraints();
+		gbc_comboBox_19.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_19.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_19.gridx = 2;
+		gbc_comboBox_19.gridy = 5;
+		DevicesSetup.add(comboBox_19, gbc_comboBox_19);
+		
+		JComboBox comboBox_26 = new JComboBox(lado);
+		GridBagConstraints gbc_comboBox_26 = new GridBagConstraints();
+		gbc_comboBox_26.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_26.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_26.gridx = 3;
+		gbc_comboBox_26.gridy = 5;
+		DevicesSetup.add(comboBox_26, gbc_comboBox_26);
+		
+		JLabel lblDispositivo_2 = new JLabel("Dispositivo 3:");
+		GridBagConstraints gbc_lblDispositivo_2 = new GridBagConstraints();
+		gbc_lblDispositivo_2.anchor = GridBagConstraints.EAST;
+		gbc_lblDispositivo_2.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDispositivo_2.gridx = 1;
+		gbc_lblDispositivo_2.gridy = 6;
+		DevicesSetup.add(lblDispositivo_2, gbc_lblDispositivo_2);
+		
+		JComboBox comboBox_20 = new JComboBox(altura);
+		GridBagConstraints gbc_comboBox_20 = new GridBagConstraints();
+		gbc_comboBox_20.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_20.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_20.gridx = 2;
+		gbc_comboBox_20.gridy = 6;
+		DevicesSetup.add(comboBox_20, gbc_comboBox_20);
+		
+		JComboBox comboBox_27 = new JComboBox(lado);
+		GridBagConstraints gbc_comboBox_27 = new GridBagConstraints();
+		gbc_comboBox_27.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_27.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_27.gridx = 3;
+		gbc_comboBox_27.gridy = 6;
+		DevicesSetup.add(comboBox_27, gbc_comboBox_27);
+		
+		JLabel lblDispositivo_3 = new JLabel("Dispositivo 4:");
+		GridBagConstraints gbc_lblDispositivo_3 = new GridBagConstraints();
+		gbc_lblDispositivo_3.anchor = GridBagConstraints.EAST;
+		gbc_lblDispositivo_3.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDispositivo_3.gridx = 1;
+		gbc_lblDispositivo_3.gridy = 7;
+		DevicesSetup.add(lblDispositivo_3, gbc_lblDispositivo_3);
+		
+		JComboBox comboBox_21 = new JComboBox(altura);
+		GridBagConstraints gbc_comboBox_21 = new GridBagConstraints();
+		gbc_comboBox_21.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_21.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_21.gridx = 2;
+		gbc_comboBox_21.gridy = 7;
+		DevicesSetup.add(comboBox_21, gbc_comboBox_21);
+		
+		JComboBox comboBox_28 = new JComboBox(lado);
+		GridBagConstraints gbc_comboBox_28 = new GridBagConstraints();
+		gbc_comboBox_28.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_28.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_28.gridx = 3;
+		gbc_comboBox_28.gridy = 7;
+		DevicesSetup.add(comboBox_28, gbc_comboBox_28);
+		
+		JLabel lblDispositivo_4 = new JLabel("Dispositivo 5:");
+		GridBagConstraints gbc_lblDispositivo_4 = new GridBagConstraints();
+		gbc_lblDispositivo_4.anchor = GridBagConstraints.EAST;
+		gbc_lblDispositivo_4.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDispositivo_4.gridx = 1;
+		gbc_lblDispositivo_4.gridy = 8;
+		DevicesSetup.add(lblDispositivo_4, gbc_lblDispositivo_4);
+		
+		JComboBox comboBox_22 = new JComboBox(altura);
+		GridBagConstraints gbc_comboBox_22 = new GridBagConstraints();
+		gbc_comboBox_22.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_22.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_22.gridx = 2;
+		gbc_comboBox_22.gridy = 8;
+		DevicesSetup.add(comboBox_22, gbc_comboBox_22);
+		
+		JComboBox comboBox_29 = new JComboBox(lado);
+		GridBagConstraints gbc_comboBox_29 = new GridBagConstraints();
+		gbc_comboBox_29.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_29.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_29.gridx = 3;
+		gbc_comboBox_29.gridy = 8;
+		DevicesSetup.add(comboBox_29, gbc_comboBox_29);
+		
+		JLabel lblDispositivo_5 = new JLabel("Dispositivo 6:");
+		GridBagConstraints gbc_lblDispositivo_5 = new GridBagConstraints();
+		gbc_lblDispositivo_5.anchor = GridBagConstraints.EAST;
+		gbc_lblDispositivo_5.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDispositivo_5.gridx = 1;
+		gbc_lblDispositivo_5.gridy = 9;
+		DevicesSetup.add(lblDispositivo_5, gbc_lblDispositivo_5);
+		
+		JComboBox comboBox_23 = new JComboBox(altura);
+		GridBagConstraints gbc_comboBox_23 = new GridBagConstraints();
+		gbc_comboBox_23.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_23.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_23.gridx = 2;
+		gbc_comboBox_23.gridy = 9;
+		DevicesSetup.add(comboBox_23, gbc_comboBox_23);
+		
+		JComboBox comboBox_30 = new JComboBox(lado);
+		GridBagConstraints gbc_comboBox_30 = new GridBagConstraints();
+		gbc_comboBox_30.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_30.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_30.gridx = 3;
+		gbc_comboBox_30.gridy = 9;
+		DevicesSetup.add(comboBox_30, gbc_comboBox_30);
+		
+		JLabel lblDispositivo_6 = new JLabel("Dispositivo 7:");
+		GridBagConstraints gbc_lblDispositivo_6 = new GridBagConstraints();
+		gbc_lblDispositivo_6.anchor = GridBagConstraints.EAST;
+		gbc_lblDispositivo_6.insets = new Insets(0, 0, 5, 5);
+		gbc_lblDispositivo_6.gridx = 1;
+		gbc_lblDispositivo_6.gridy = 10;
+		DevicesSetup.add(lblDispositivo_6, gbc_lblDispositivo_6);
+		
+		JComboBox comboBox_24 = new JComboBox(altura);
+		GridBagConstraints gbc_comboBox_24 = new GridBagConstraints();
+		gbc_comboBox_24.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_24.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_24.gridx = 2;
+		gbc_comboBox_24.gridy = 10;
+		DevicesSetup.add(comboBox_24, gbc_comboBox_24);
+		
+		JComboBox comboBox_31 = new JComboBox(lado);
+		GridBagConstraints gbc_comboBox_31 = new GridBagConstraints();
+		gbc_comboBox_31.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox_31.insets = new Insets(0, 0, 5, 5);
+		gbc_comboBox_31.gridx = 3;
+		gbc_comboBox_31.gridy = 10;
+		DevicesSetup.add(comboBox_31, gbc_comboBox_31);
+		
+		JButton btnDefinirEVoltar = new JButton("   Definir e Voltar   ");
+		btnDefinirEVoltar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				basicInfo.setPositionDevice(1, (String) comboBox_18.getSelectedItem(), (String) comboBox_25.getSelectedItem());
+				basicInfo.setPositionDevice(2, (String) comboBox_19.getSelectedItem(), (String) comboBox_26.getSelectedItem());
+				basicInfo.setPositionDevice(3, (String) comboBox_20.getSelectedItem(), (String) comboBox_27.getSelectedItem());
+				basicInfo.setPositionDevice(4, (String) comboBox_21.getSelectedItem(), (String) comboBox_28.getSelectedItem());
+				basicInfo.setPositionDevice(5, (String) comboBox_22.getSelectedItem(), (String) comboBox_29.getSelectedItem());
+				basicInfo.setPositionDevice(6, (String) comboBox_23.getSelectedItem(), (String) comboBox_30.getSelectedItem());
+				basicInfo.setPositionDevice(7, (String) comboBox_24.getSelectedItem(), (String) comboBox_31.getSelectedItem());
+				
+				Modulos.setEnabled(true);
+				Modulos.setVisible(true);
+				DevicesSetup.setEnabled(false);
+				DevicesSetup.setVisible(false);
+			}
+		});
+		GridBagConstraints gbc_btnDefinirEVoltar = new GridBagConstraints();
+		gbc_btnDefinirEVoltar.insets = new Insets(0, 0, 0, 5);
+		gbc_btnDefinirEVoltar.gridx = 1;
+		gbc_btnDefinirEVoltar.gridy = 12;
+		gbc_btnDefinirEVoltar.gridwidth = 3;
+		DevicesSetup.add(btnDefinirEVoltar, gbc_btnDefinirEVoltar);
+	}
+	
+	private static void closeTraining(Training training, CommunicateArduino ca) {
+		training.endTraining(ca);
+	}
+}
