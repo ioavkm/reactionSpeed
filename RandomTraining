@@ -1,0 +1,45 @@
+/** Classe filha da classe Training, estendendo-a. Ela contém as funcionalidades necessárias para a realização do treinamento “aleatório"*/
+
+import java.util.Random;
+import java.io.OutputStream;
+import java.util.ArrayList;
+
+public class RandomTraining extends Training{
+
+	public static OutputStream output;
+	Random randomGenerator = new Random();
+	int ledNum;
+	
+	// construtor
+	public RandomTraining(CommunicateArduino ca) {
+		super(ca);
+		ledNum = 0;
+	}
+	
+	// escolhe um dispositivo aleatoriamente
+	public void generateRandomLedNum() {
+		ledNum = randomGenerator.nextInt(numConnections);
+	}
+	
+	// liga o led
+	public void turnLedOn(CommunicateArduino ca) {
+		output = ca.getOutput(ledNum);
+		writeData(TURN_ON);
+	}
+	
+	// adiciona o tempo à lista correspondente
+	public void addTime(CommunicateArduino ca, BasicInfo basicInfo) {
+		addTimes(ca.getInputValue(), basicInfo);
+	}
+	
+	// envia um comando ao dispositivo
+	public static synchronized void writeData(int data) {
+		try {
+			output.write(data);
+			output.flush();
+		} catch (Exception e) {
+			System.out.println("Could not write to port.");
+		}
+	}
+	
+}
