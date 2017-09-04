@@ -1,0 +1,115 @@
+/** Classe pai de todos os treinamentos, possuindo as variáveis e os métodos comuns e necessários a todos eles.
+ * Ela estende a classe CommunicateArduino, de maneira que consiga ter acesso às portas seriais.
+ */
+
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Random;
+
+public class Training extends CommunicateArduino{
+
+	public static final int TURN_ON = 1;
+	public static final int TURN_OFF = 2;
+	
+	public static OutputStream output;
+	
+	int numConnections = 0;
+	
+	ArrayList<ArrayList<Long>> times = new ArrayList<ArrayList<Long>>();
+	//5 linhas (geral, ad, ae, bd, be) e 3 colunas (timeAvg, timeMin, timeMax)
+	long[][] time = new long[5][3];
+	
+	// construtor
+	public Training(CommunicateArduino ca) {
+		for (int i = 0; i < 5; i++) {
+			times.add(new ArrayList<Long>());
+			time[i][0] = 0;
+			time[i][1] = 10000000;
+			time[i][2] = 0;
+		}
+		ca.clearInputData();
+	}
+	
+	// adiciona o tempo à lista do dispositivo
+	public void addTimes(InputData inputData, BasicInfo basicInfo) {
+		times.get(0).add(inputData.time);
+		int positionDevice = getPosition(inputData.deviceNum, basicInfo);
+		if (positionDevice!= -1) {
+			times.get(positionDevice).add(inputData.time);
+		}
+	}
+	
+	// retorna a posição do dispositivo
+	public int getPosition(int deviceNum, BasicInfo basicInfo) {
+		if (deviceNum == 1) {
+			return basicInfo.positionDevice1;
+		} else if (deviceNum == 2) {
+			return basicInfo.positionDevice2;
+		} else if (deviceNum == 3) {
+			return basicInfo.positionDevice3;
+		} else if (deviceNum == 4) {
+			return basicInfo.positionDevice4;
+		} else if (deviceNum == 5) {
+			return basicInfo.positionDevice5;
+		} else if (deviceNum == 6) {
+			return basicInfo.positionDevice6;
+		} else if (deviceNum == 7) {
+			return basicInfo.positionDevice7;
+		}
+		return -1;
+	}
+	
+	// envia um comando ao dispositivo
+	public static synchronized void writeData(int data) {
+		try {
+			output.write(data);
+			output.flush();
+		} catch (Exception e) {
+			System.out.println("Could not write to port.");
+		}
+	}
+	
+	// desliga os leds
+	public void turnLedsOff(CommunicateArduino ca) {
+		for (int i = 0; i < numConnections; i++) {
+			output = ca.getOutput(i);
+			writeData(TURN_OFF);
+		}
+	}
+	
+	// calcula os tempos médios, mínimos e máximos
+	public void calculateTimeValues() {
+		int i = 0;
+		for (ArrayList<Long> list: times) {
+			if (list.size() != 0) {
+				int j = 0;
+				for (long t: list){
+					if (t >=0) {
+						if (time[i][1] > t) { //timeMin
+							time[i][1] = t;
+						}
+						if (time[i][2] < t) { //timeMax
+							time[i][2] = t;
+						}
+						time[i][0] += t; //timeAvg
+						j++;
+					}
+				}
+				if (j != 0) {
+					time[i][0] /= j; //timeAvg
+				}
+			}
+			if (time[i][1] == 10000000) {
+				time[i][1] = 0; //timeMin
+			}
+		i++;
+		}
+	}
+	
+	// encerra o treinamento
+	public void endTraining(CommunicateArduino ca) {
+		turnLedsOff(ca);
+		ca.clearInputData(); // limpa as listas
+		calculateTimeValues();
+	}
+}
